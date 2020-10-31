@@ -35,10 +35,9 @@ print(df.CUSTOMER.count())
 print(df.CUSTOMER.nunique())
 
 # 2) Create (at least) a bar plot of total amount of sold foods (plot1) and drinks (plot2) over the five years
-df.groupby(df['YEAR']).count()
-plt.show()
 
-a = df['FOOD'].groupby(df[['YEAR', 'FOOD']]).count()
+# Just trials, need to clean
+df.groupby(df['YEAR']).count()
 plt.show()
 
 df['DRINKS'].groupby(df['TIME']).count().plot()
@@ -70,11 +69,17 @@ for i in food:
 dfprob['ID'] = dfprob.index
 
 for index,row in dfprob.iterrows():
-    print("On average the probability of a costumer at %s buying coffee, soda and water is %s, %s, %s and for "
-          "food %s sandwiches, %s muffins and %s nothing."
-          %(row['ID'], row['DRINK_coffee'], row['DRINK_soda'], row['DRINK_water'],
-            row['FOOD_sandwich'], row['FOOD_muffin'], row['FOOD_nothing']))
+    print("On average the probabilities of a costumer buying the following drinks at %s are: "
+          "coffee %s, soda %s, water %s, tea %s, milkshake %s, frappucino %s and for food: "
+          "sandwich %s, muffin %s, cookie %s, pie %s or nothing %s."
+          %(row['ID'], row['DRINK_coffee'], row['DRINK_soda'], row['DRINK_water'], row['DRINK_tea'],
+            row['DRINK_milkshake'], row['DRINK_frappucino'],
+            row['FOOD_sandwich'], row['FOOD_muffin'], row['FOOD_cookie'], row['FOOD_pie'], row['FOOD_nothing']))
 
+
+
+
+# More trials
 dfprob[drinks].plot()
 plt.show()
 dfprob[['FOOD_cookie', 'FOOD_muffin', 'FOOD_pie', 'FOOD_sandwich']].plot()
