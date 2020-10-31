@@ -1,12 +1,13 @@
 # 0) Import libraries and data
-
+import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import pandas as pd
 import os
 
 # define inupt and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
-exportpath = os.path.abspath("./Results/dfprobs.csv")
+exportpath = os.path.abspath("../Results/dfprobs.csv")
 
 # load dataframe
 df = pd.read_csv(importpath, sep=";")
@@ -65,5 +66,3 @@ for index,row in dfprob.iterrows():
 
 
 dfprob.to_csv(exportpath, sep=";", index = False)
-
-
