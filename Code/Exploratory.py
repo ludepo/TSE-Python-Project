@@ -36,36 +36,21 @@ print(df.CUSTOMER.nunique())
 
 # 2) Create (at least) a bar plot of total amount of sold foods (plot1) and drinks (plot2) over the five years
 
-# Just trials, need to clean
-df.groupby(df['YEAR']).count()
+plt.bar(df.groupby(by="DRINKS",as_index=False).count().sort_values(by = 'TIME', ascending = False).DRINKS, df.groupby(by="DRINKS",as_index=False).count().sort_values(by = 'TIME', ascending = False).TIME)
 plt.show()
 
-df['DRINKS'].groupby(df['TIME']).count().plot()
-plt.bar.show()
-
-df['DRINKS'].groupby(df['WEEKDAY']).count().plot()
+plt.bar(df.groupby(by="FOOD",as_index=False).count().sort_values(by = 'TIME', ascending = False).FOOD, df.groupby(by="FOOD",as_index=False).count().sort_values(by = 'TIME', ascending = False).TIME)
 plt.show()
 
-df['FOOD'].groupby(df['DATE']).count().plot()
-plt.show()
-
-df['DRINKS'].groupby(df['DATE']).count().plot()
-plt.show()
 
 # 3) Determine the average that a customer buys a certain food or drink at any given time:
 dfprob = df.drop(['CUSTOMER', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
 dfprob = pd.get_dummies(dfprob, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]).\
                  groupby('TIME').\
-                 sum()
-drinks = ['DRINK_coffee', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_soda', 'DRINK_tea', 'DRINK_water']
-food =  ['FOOD_cookie', 'FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']
-dfprob['totalDrinks'] = dfprob[drinks].sum(axis=1)
-dfprob['totalFood'] = dfprob[food].sum(axis=1)
+                 mean()
+for i in dfprob.columns:
+    dfprob[i] = round(dfprob[i]*100)
 
-for i in drinks:
-    dfprob[i] = round(dfprob[i]/dfprob['totalDrinks']*100)
-for i in food:
-    dfprob[i] = round(dfprob[i]/dfprob['totalFood']*100)
 dfprob['ID'] = dfprob.index
 
 for index,row in dfprob.iterrows():
@@ -77,7 +62,23 @@ for index,row in dfprob.iterrows():
             row['FOOD_sandwich'], row['FOOD_muffin'], row['FOOD_cookie'], row['FOOD_pie'], row['FOOD_nothing']))
 
 
+plt.stackplot()
 
+
+
+
+
+
+# Just trials, need to clean
+
+df['DRINKS'].groupby(df['WEEKDAY']).count().plot()
+plt.show()
+
+df['FOOD'].groupby(df['DATE']).count().plot()
+plt.show()
+
+df['DRINKS'].groupby(df['DATE']).count().plot()
+plt.show()
 
 # More trials
 dfprob[drinks].plot()
@@ -100,6 +101,10 @@ plt.show()
 
 df.groupby(['TIME', 'DRINKS']).count()['YEAR'].unstack().plot()
 plt.show()
+
+df.groupby(['YEAR', 'DRINKS']).count()['TIME'].unstack().plot()
+plt.show()
+
 
 df[df['DRINKS'] != 'soda'].groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
 plt.show()
