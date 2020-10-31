@@ -16,24 +16,27 @@ prices = {'PRODUCT': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water
           'PRICE': [3, 4, 5, 3, 3, 2, 2, 3, 3, 2, 0]}
 prices = pd.DataFrame(prices)
 
-class Customer(object):
+class Customer:
     def __init__(self):
         self.ID = "CID" + str(uuid.uuid1())
         self.budget = 100
         self.purchases = []
-        self.money_spent = NULL
+        self.money_spent = None
         self.tip = 0
 
 class Tripadvised(Customer):
     def __init__(self):
-        self.tip = random.choice(range(1,1000))/100
+        super().__init__()
+        self.tip = random.choice(range(100, 1001))/100
 
 class Returner(Customer):
     def __init__(self):
+        super().__init__()
         self.budget = 250
 
 class Hipster(Customer):
     def __init__(self):
+        super().__init__()
         self.budget = 500
 
 class Purchase(object):
@@ -60,3 +63,18 @@ class Purchase(object):
     def describe(self):
         print("The purchase of %s at %s o'clock was a %s with %s to eat with an overall value of %s."
               %(self.customer, self.time, self.drink, self.food, self.value))
+
+
+
+###### Simulations file
+
+ReturningCust = [Returner()]*667
+ReturningCust.extend([Hipster()]*333)
+
+
+
+
+
+test = [Customer()]*6
+test.extend([Tripadvised()]*5)
+
