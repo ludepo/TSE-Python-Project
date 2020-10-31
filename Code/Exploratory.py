@@ -11,7 +11,7 @@ import pandas as pd
 
 
 # define inupt and output path
-importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
+importpath = os.path.abspath("../Data/Coffeebar_2016-2020.csv")
 exportpath = os.path.abspath("../Results/Outputdata.csv")
 
 # load dataframe
