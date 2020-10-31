@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import os
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
 
 # define inupt and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
@@ -43,6 +48,7 @@ plt.bar(df.groupby(by="FOOD",as_index=False).count().sort_values(by = 'TIME', as
 plt.show()
 
 
+
 # 3) Determine the average that a customer buys a certain food or drink at any given time:
 dfprob = df.drop(['CUSTOMER', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
 dfprob = pd.get_dummies(dfprob, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]).\
@@ -61,13 +67,10 @@ for index,row in dfprob.iterrows():
             row['DRINK_milkshake'], row['DRINK_frappucino'],
             row['FOOD_sandwich'], row['FOOD_muffin'], row['FOOD_cookie'], row['FOOD_pie'], row['FOOD_nothing']))
 
-
-plt.stackplot()
-
-
-
-
-
+dfpropdrink= dfprob[['DRINK_coffee', 'DRINK_soda' , 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_tea', 'DRINK_water']]
+dfpropdrink.plot.area()
+dfpropfood = dfprob [['FOOD_cookie', 'FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']]
+dfpropfood.plot.area()
 
 # Just trials, need to clean
 
@@ -93,7 +96,6 @@ df.groupby(['TIME', 'FOOD']).count()['YEAR'].unstack()
 
 
 
-    plot()
 plt.show()
 df['DATETIME'][df['FOOD'] == "sandwich"].dt.hour.describe()
 df[df['FOOD'] != 'sandwich'].groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
