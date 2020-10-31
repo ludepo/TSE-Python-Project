@@ -1,13 +1,12 @@
 # 0) Import libraries and data
-import numpy as np
+
 import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 import os
 
 # define inupt and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
-exportpath = os.path.abspath("../Results/Outputdata.csv")
+exportpath = os.path.abspath("./Results/dfprobs.csv")
 
 # load dataframe
 df = pd.read_csv(importpath, sep=";")
@@ -36,11 +35,13 @@ print(df.CUSTOMER.nunique())
 
 # 2) Create (at least) a bar plot of total amount of sold foods (plot1) and drinks (plot2) over the five years
 
-plt.bar(df.groupby(by="DRINKS",as_index=False).count().sort_values(by = 'TIME', ascending = False).DRINKS, df.groupby(by="DRINKS",as_index=False).count().sort_values(by = 'TIME', ascending = False).TIME)
-plt.show()
+plt.bar(df.groupby(by="DRINKS",as_index=False).count().sort_values(by = 'TIME', ascending = False).DRINKS,
+        df.groupby(by="DRINKS",as_index=False).count().sort_values(by = 'TIME', ascending = False).TIME)
+#plt.show()
 
-plt.bar(df.groupby(by="FOOD",as_index=False).count().sort_values(by = 'TIME', ascending = False).FOOD, df.groupby(by="FOOD",as_index=False).count().sort_values(by = 'TIME', ascending = False).TIME)
-plt.show()
+plt.bar(df.groupby(by="FOOD",as_index=False).count().sort_values(by = 'TIME', ascending = False).FOOD,
+        df.groupby(by="FOOD",as_index=False).count().sort_values(by = 'TIME', ascending = False).TIME)
+#plt.show()
 
 
 # 3) Determine the average that a customer buys a certain food or drink at any given time:
@@ -51,6 +52,7 @@ dfprob = pd.get_dummies(dfprob, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FO
 for i in dfprob.columns:
     dfprob[i] = round(dfprob[i]*100)
 
+dfprob = dfprob.astype(int)
 dfprob['ID'] = dfprob.index
 
 for index,row in dfprob.iterrows():
@@ -62,55 +64,6 @@ for index,row in dfprob.iterrows():
             row['FOOD_sandwich'], row['FOOD_muffin'], row['FOOD_cookie'], row['FOOD_pie'], row['FOOD_nothing']))
 
 
-plt.stackplot()
+dfprob.to_csv(exportpath, sep=";", index = False)
 
 
-
-
-
-
-# Just trials, need to clean
-
-df['DRINKS'].groupby(df['WEEKDAY']).count().plot()
-plt.show()
-
-df['FOOD'].groupby(df['DATE']).count().plot()
-plt.show()
-
-df['DRINKS'].groupby(df['DATE']).count().plot()
-plt.show()
-
-# More trials
-dfprob[drinks].plot()
-plt.show()
-dfprob[['FOOD_cookie', 'FOOD_muffin', 'FOOD_pie', 'FOOD_sandwich']].plot()
-plt.show()
-
-
-
-
-df.groupby(['TIME', 'FOOD']).count()['YEAR'].unstack()
-
-
-
-    plot()
-plt.show()
-df['DATETIME'][df['FOOD'] == "sandwich"].dt.hour.describe()
-df[df['FOOD'] != 'sandwich'].groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
-plt.show()
-
-df.groupby(['TIME', 'DRINKS']).count()['YEAR'].unstack().plot()
-plt.show()
-
-df.groupby(['YEAR', 'DRINKS']).count()['TIME'].unstack().plot()
-plt.show()
-
-
-df[df['DRINKS'] != 'soda'].groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
-plt.show()
-df[df['DRINKS'] == 'soda'].groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
-plt.show()
-df['DRINKS'][df['DRINKS'] == 'soda'].corr([df['FOOD'] != 'sandwich'], method='pearson')
-
-df[df['DRINKS'] != 'soda'].groupby(['TIME', 'DRINKS']).count()['YEAR'].unstack().plot()
-plt.show()
