@@ -16,8 +16,6 @@ prices = {'PRODUCT': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water
           'PRICE': [3, 4, 5, 3, 3, 2, 2, 3, 3, 2, 0]}
 prices = pd.DataFrame(prices)
 
-
-
 class Customer(object):
     def __init__(self):
         self.ID = "CID" + str(uuid.uuid1())
@@ -102,8 +100,8 @@ transactions['CUSTBUDG'] = ""
 transactions['MONEYSPENT'] = ""
 
 # Create list of returning customers
-ReturningCust = [Returner() for i in range(66)] # probability 2/3 for being normal returning customer (out of 1000 returning)
-ReturningCust.extend([Hipster() for i in range(33)]) # probability 1/3 for being hipster
+ReturningCust = [Returner() for i in range(667)] # probability 2/3 for being normal returning customer (out of 1000 returning)
+ReturningCust.extend([Hipster() for i in range(333)]) # probability 1/3 for being hipster
 
 # Create function that defines what type of customer enters the cafe for a given time
 def ChooseCustomer(time):
