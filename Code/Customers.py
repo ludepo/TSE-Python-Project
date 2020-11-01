@@ -16,12 +16,14 @@ prices = {'PRODUCT': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water
           'PRICE': [3, 4, 5, 3, 3, 2, 2, 3, 3, 2, 0]}
 prices = pd.DataFrame(prices)
 
-class Customer:
+
+
+class Customer(object):
     def __init__(self):
         self.ID = "CID" + str(uuid.uuid1())
         self.budget = 100
         self.purchases = []
-        self.money_spent = None
+        self.money_spent = 0
         self.tip = 0
 
 class Tripadvised(Customer):
@@ -41,7 +43,7 @@ class Hipster(Customer):
 
 class Purchase(object):
     def __init__(self, customer, hour, minute):
-        self.customer = customer
+        self.customer = customer.ID
         self.time = [hour, minute]
 
         food = ['cookie', 'muffin', 'pie', 'sandwich', 'nothing']
@@ -66,12 +68,39 @@ class Purchase(object):
 
 
 
-###### Simulations file
+###### Simulations file #################################################################################################
 
-ReturningCust = [Returner()]*667
-ReturningCust.extend([Hipster()]*333)
+times = dfprob[['HOUR','MINUTE']]
+times['CUSTOMER'] = ""
+
+ReturningCust = [Returner()]*667 # probability 2/3 for being normal returning customer (out of 1000 returning)
+ReturningCust.extend([Hipster()]*333) # probability 1/3 for being hipster
+
+def ChooseCustomer(time):
+    # this function decides what customer enters the cafe at the respective time
+    customer = random.choices([random.choice(ReturningCust), Customer(), Tripadvised()],
+                              weights = [20, 72, 8], # 20% chance for random draw of returning,
+                              k = 1)                 # 72% normal one time customer, 8% tripadvisor customer
+    return customer
+
+for i in range(0,len(times)):
+    times['CUSTOMER'][i] = ChooseCustomer(i)
+
+# TODO: Ask romain for best structure for list that combines time and customer which can be developed to purchase
+# (Current problem that the objects attributes that are stored in cell can not be called (like line 46))
+
+# make purchase
+purchase = [Purchase(row['CUSTOMER'], row['HOUR'], row['MINUTE'])]
+for index,row in times.iterrows():
+    purchase.extend(Purchase(row['CUSTOMER'], row['HOUR'], row['MINUTE']))
 
 
+
+
+
+
+# -> 0.2* randomly from ReturningCust
+# -> 0.8* (0.1* Tripadvised() or 0.9*Customer())
 
 
 
