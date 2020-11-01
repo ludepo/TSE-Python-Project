@@ -27,8 +27,8 @@ class Customer(object):
         self.purchases = []
         self.tip = 0
 
-    def make_payment(self):
-        self.budget = self.budget - self.money_spent
+    def make_payment(self, cost):
+        self.budget -= cost
 
 
     #def drinks_bought(self):
@@ -90,8 +90,8 @@ transactions['CUSTBUDG'] = ""
 transactions['MONEYSPENT'] = ""
 
 # Create list of returning customers
-ReturningCust = [Returner()]*667 # probability 2/3 for being normal returning customer (out of 1000 returning)
-ReturningCust.extend([Hipster()]*333) # probability 1/3 for being hipster
+ReturningCust = [Returner() for i in range(667)] # probability 2/3 for being normal returning customer (out of 1000 returning)
+ReturningCust.extend([Hipster() for i in range(333)]) # probability 1/3 for being hipster
 
 # Create function that defines what type of customer enters the cafe for a given time
 def ChooseCustomer(time):
@@ -111,7 +111,8 @@ for i in range(0, len(transactions)):
                                            transactions['MINUTE'].values[i])
     transactions['MONEYSPENT'][i] = transactions['PURCHASE'][i].value # TODO change to payment once tips are done
     transactions['CUSTOMER'][i].money_spent += transactions['PURCHASE'][i].value
-    transactions['CUSTOMER'][i].make_payment() # TODO problem: subtracts from all objects of same class
+    #transactions['CUSTOMER'][i].budget -= transactions['PURCHASE'][i].value
+    transactions['CUSTOMER'][i].make_payment(transactions['PURCHASE'][i].value) # TODO problem: subtracts from all objects of same class
 
 # F
 for i in range(0, len(transactions)):
@@ -127,10 +128,13 @@ print(transactions['PURCHASE'][0].describe_purchase(),
 test = []
 
 for i in range(0,len(ReturningCust)):
-    test.append(ReturningCust[i].budget)
+    test.append(ReturningCust[i].money_spent)
 
 
+test2 = []
 
+for i in range(0,len(ReturningCust)):
+    test2.append(ReturningCust[i].budget)
 
 
 trans = []
