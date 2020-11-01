@@ -26,9 +26,9 @@ class Customer(object):
         self.money_spent = 0
         self.tip = 0
 
-    def drinks_bought(self):
-    def food_bought(self):
-    def purchase_history(self):
+    #def drinks_bought(self):
+    #def food_bought(self):
+    #def purchase_history(self):
 class Tripadvised(Customer):
     def __init__(self):
         super().__init__()
@@ -46,7 +46,7 @@ class Hipster(Customer):
 
 class Purchase(object):
     def __init__(self, customer, hour, minute):
-        self.customer = customer[0]
+        self.customer = customer
         self.time = [hour, minute]
 
         food = ['cookie', 'muffin', 'pie', 'sandwich', 'nothing']
@@ -65,7 +65,7 @@ class Purchase(object):
         self.value = prices[prices['PRODUCT'] == food[0]]['PRICE'].values[0] + \
                      prices[prices['PRODUCT'] == drink[0]]['PRICE'].values[0]
 
-    def describe(self):
+    def describe_purchase(self):
         print("The purchase of %s at %s:%s o'clock was a %s with %s to eat and had an overall value of %s€."
               %(self.customer.ID, self.time[0], self.time[1], self.drink[0], self.food[0], self.value))
 
@@ -73,41 +73,55 @@ class Purchase(object):
 
 ###### Simulations file #################################################################################################
 
+# Prepare dtataframe that will associate a purchase object to a customer object at given times
 transactions = dfprob[['HOUR', 'MINUTE']]
 transactions['CUSTOMER'] = ""
+transactions['PURCHASE'] = ""
 
+# Create list of returning customers
 ReturningCust = [Returner()]*667 # probability 2/3 for being normal returning customer (out of 1000 returning)
 ReturningCust.extend([Hipster()]*333) # probability 1/3 for being hipster
 
+# Create function that defines what type of customer enters the cafe for a given time
 def ChooseCustomer(time):
-    # this function decides what customer enters the cafe at the respective time
     customer = random.choices([random.choice(ReturningCust), Customer(), Tripadvised()],
                               weights = [20, 72, 8], # 20% chance for random draw of returning,
                               k = 1)                 # 72% normal one time customer, 8% tripadvisor customer
     return customer[0]
 
+# Assign type of customer per timeslot
 for i in range(0, len(transactions)):
     transactions['CUSTOMER'][i] = ChooseCustomer(i)
 
-
-# make purchase
-
-transactions['PURCHASE'] = ""
-
-
-Purchase(transactions['CUSTOMER'].value, transactions['HOUR'], transactions['MINUTE'])
-
-
+# Find purchase object of the respective customer at a given time
 for i in range(0, len(transactions)):
     transactions['PURCHASE'][i] = Purchase(transactions['CUSTOMER'].values[i],
                                            transactions['HOUR'].values[i],
                                            transactions['MINUTE'].values[i])
 
+# Give examples of purchases
+print(transactions['PURCHASE'][0].describe_purchase(),
+      transactions['PURCHASE'][1].describe_purchase(),
+      transactions['PURCHASE'][2].describe_purchase())
 
 
 
 
 
+
+
+
+trans = []
+for i in range(0, len(transactions)):
+    trans.append(Purchase(transactions['CUSTOMER'].values[i],
+                          transactions['HOUR'].values[i],
+                          transactions['MINUTE'].values[i]))
+
+
+
+
+tran = []
+tran = Purchase(transactions['CUSTOMER'], transactions['HOUR'], transactions['MINUTE'])
 
 for index,row in transactions.iterrows():
     .extend(Purchase(row['CUSTOMER'], row['HOUR'], row['MINUTE']))
