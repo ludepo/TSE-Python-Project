@@ -28,15 +28,16 @@ selling and to obtain probabilities for orders at each given time of the day. Th
 allows to obtain a csv dataset, "dfprobs.csv"  with cross probabilities between time of the day and order of
 different items. 
 
-The second Code file creates the different classes of objects that are needed in the simulation. 
+The second Code file, "Customer.py", creates the different classes of objects that are needed in the simulation. 
 It creates the different types of customers with given attributes, the food and drinks objects 
 and the purchase object.
 
-Finaly, the simulation code regroups functions that allows to create a five year span of 
+Finally, the "simulation.py" Code regroups functions that allows to create a five year span of 
 customers' purchases.
 
 Please run the Codes in the following order: Exploratory, Customer and Simulation. 
 
+The Results folder contains the datasets created for the project.
 
 
 ## Authors
