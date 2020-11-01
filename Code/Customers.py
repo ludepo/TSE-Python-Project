@@ -21,10 +21,15 @@ prices = pd.DataFrame(prices)
 class Customer(object):
     def __init__(self):
         self.ID = "CID" + str(uuid.uuid1())
+        self.type = "normal one time"
+        self.money_spent = 0
         self.budget = 100
         self.purchases = []
-        self.money_spent = 0
         self.tip = 0
+
+    def make_payment(self):
+        self.budget = self.budget - self.money_spent
+
 
     #def drinks_bought(self):
     #def food_bought(self):
@@ -32,16 +37,19 @@ class Customer(object):
 class Tripadvised(Customer):
     def __init__(self):
         super().__init__()
+        self.type = "tripadvisor one time"
         self.tip = random.choice(range(100, 1001))/100
 
 class Returner(Customer):
     def __init__(self):
         super().__init__()
+        self.type = "normal returning"
         self.budget = 250
 
 class Hipster(Customer):
     def __init__(self):
         super().__init__()
+        self.type = "hipster returning"
         self.budget = 500
 
 class Purchase(object):
@@ -64,6 +72,7 @@ class Purchase(object):
         self.food = food
         self.value = prices[prices['PRODUCT'] == food[0]]['PRICE'].values[0] + \
                      prices[prices['PRODUCT'] == drink[0]]['PRICE'].values[0]
+        #self.payment = different from value as tips might be given
 
     def describe_purchase(self):
         print("The purchase of %s at %s:%s o'clock was a %s with %s to eat and had an overall value of %s€."
@@ -77,6 +86,8 @@ class Purchase(object):
 transactions = dfprob[['HOUR', 'MINUTE']]
 transactions['CUSTOMER'] = ""
 transactions['PURCHASE'] = ""
+transactions['CUSTBUDG'] = ""
+transactions['MONEYSPENT'] = ""
 
 # Create list of returning customers
 ReturningCust = [Returner()]*667 # probability 2/3 for being normal returning customer (out of 1000 returning)
@@ -84,16 +95,25 @@ ReturningCust.extend([Hipster()]*333) # probability 1/3 for being hipster
 
 # Create function that defines what type of customer enters the cafe for a given time
 def ChooseCustomer(time):
-    customer = random.choices([random.choice(ReturningCust), Customer(), Tripadvised()],
-                              weights = [20, 72, 8], # 20% chance for random draw of returning,
-                              k = 1)                 # 72% normal one time customer, 8% tripadvisor customer
+    liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if ReturningCust[i].budget > 8] # is returner solvent?
+    returner = random.choice(liquid)                                         # define type of returner (normal/hipster)
+    customer = random.choices([returner, Customer(), Tripadvised()],
+                              weights = [20, 72, 8], # 20% chance for returner, 72% normal one time customer,
+                              k = 1)                 #  8% tripadvisor customer
     return customer[0]
 
-# Assign type of customer per timeslot
+# Assign type of customer per timeslot, find purchase object of the respective customer
 for i in range(0, len(transactions)):
     transactions['CUSTOMER'][i] = ChooseCustomer(i)
+    transactions['CUSTBUDG'][i] = transactions['CUSTOMER'][i].budget
+    transactions['PURCHASE'][i] = Purchase(transactions['CUSTOMER'].values[i],
+                                           transactions['HOUR'].values[i],
+                                           transactions['MINUTE'].values[i])
+    transactions['MONEYSPENT'][i] = transactions['PURCHASE'][i].value # TODO change to payment once tips are done
+    transactions['CUSTOMER'][i].money_spent += transactions['PURCHASE'][i].value
+    transactions['CUSTOMER'][i].make_payment() # TODO problem: subtracts from all objects of same class
 
-# Find purchase object of the respective customer at a given time
+# F
 for i in range(0, len(transactions)):
     transactions['PURCHASE'][i] = Purchase(transactions['CUSTOMER'].values[i],
                                            transactions['HOUR'].values[i],
@@ -104,8 +124,10 @@ print(transactions['PURCHASE'][0].describe_purchase(),
       transactions['PURCHASE'][1].describe_purchase(),
       transactions['PURCHASE'][2].describe_purchase())
 
+test = []
 
-
+for i in range(0,len(ReturningCust)):
+    test.append(ReturningCust[i].budget)
 
 
 
