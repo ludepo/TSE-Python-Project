@@ -35,23 +35,12 @@ and the purchase object.
 Finally, the "simulation.py" Code regroups functions that allows to create a five year span of 
 customers' purchases.
 
-Please run the Codes in the following order: Exploratory, Customer and Simulation. 
+Please run the Codes in the following order: Exploratory.py, Customer.py and Simulation.py. 
 
 The Results folder contains the datasets created for the project.
 
 
 ## Authors
+**Luca POLL**, lupoll208@gmail.com, git account: Lupoll
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+**Camille CALANDRE**, calandre.camille@hotmail.fr, git account: CamilleCalandre
