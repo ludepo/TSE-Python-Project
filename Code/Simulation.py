@@ -1,4 +1,4 @@
-import Customers as C
+import Customer as C
 
 
 
