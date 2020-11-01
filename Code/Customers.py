@@ -26,6 +26,9 @@ class Customer(object):
         self.money_spent = 0
         self.tip = 0
 
+    def drinks_bought(self):
+    def food_bought(self):
+    def purchase_history(self):
 class Tripadvised(Customer):
     def __init__(self):
         super().__init__()
@@ -43,7 +46,7 @@ class Hipster(Customer):
 
 class Purchase(object):
     def __init__(self, customer, hour, minute):
-        self.customer = customer.ID
+        self.customer = customer[0]
         self.time = [hour, minute]
 
         food = ['cookie', 'muffin', 'pie', 'sandwich', 'nothing']
@@ -63,15 +66,15 @@ class Purchase(object):
                      prices[prices['PRODUCT'] == drink[0]]['PRICE'].values[0]
 
     def describe(self):
-        print("The purchase of %s at %s o'clock was a %s with %s to eat with an overall value of %s."
-              %(self.customer, self.time, self.drink, self.food, self.value))
+        print("The purchase of %s at %s:%s o'clock was a %s with %s to eat and had an overall value of %s€."
+              %(self.customer.ID, self.time[0], self.time[1], self.drink[0], self.food[0], self.value))
 
 
 
 ###### Simulations file #################################################################################################
 
-times = dfprob[['HOUR','MINUTE']]
-times['CUSTOMER'] = ""
+transactions = dfprob[['HOUR', 'MINUTE']]
+transactions['CUSTOMER'] = ""
 
 ReturningCust = [Returner()]*667 # probability 2/3 for being normal returning customer (out of 1000 returning)
 ReturningCust.extend([Hipster()]*333) # probability 1/3 for being hipster
@@ -81,18 +84,33 @@ def ChooseCustomer(time):
     customer = random.choices([random.choice(ReturningCust), Customer(), Tripadvised()],
                               weights = [20, 72, 8], # 20% chance for random draw of returning,
                               k = 1)                 # 72% normal one time customer, 8% tripadvisor customer
-    return customer
+    return customer[0]
 
-for i in range(0,len(times)):
-    times['CUSTOMER'][i] = ChooseCustomer(i)
+for i in range(0, len(transactions)):
+    transactions['CUSTOMER'][i] = ChooseCustomer(i)
 
-# TODO: Ask romain for best structure for list that combines time and customer which can be developed to purchase
-# (Current problem that the objects attributes that are stored in cell can not be called (like line 46))
 
 # make purchase
-purchase = [Purchase(row['CUSTOMER'], row['HOUR'], row['MINUTE'])]
-for index,row in times.iterrows():
-    purchase.extend(Purchase(row['CUSTOMER'], row['HOUR'], row['MINUTE']))
+
+transactions['PURCHASE'] = ""
+
+
+Purchase(transactions['CUSTOMER'].value, transactions['HOUR'], transactions['MINUTE'])
+
+
+for i in range(0, len(transactions)):
+    transactions['PURCHASE'][i] = Purchase(transactions['CUSTOMER'].values[i],
+                                           transactions['HOUR'].values[i],
+                                           transactions['MINUTE'].values[i])
+
+
+
+
+
+
+
+for index,row in transactions.iterrows():
+    .extend(Purchase(row['CUSTOMER'], row['HOUR'], row['MINUTE']))
 
 
 
