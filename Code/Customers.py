@@ -16,7 +16,6 @@ prices = {'PRODUCT': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water
           'PRICE': [3, 4, 5, 3, 3, 2, 2, 3, 3, 2, 0]}
 prices = pd.DataFrame(prices)
 
-
 class Customer(object):
     def __init__(self):
         self.ID = "CID" + str(uuid.uuid1())
@@ -66,6 +65,23 @@ class Hipster(Customer):
         self.type = "hipster returning"
         self.budget = 500
 
+class item(object):
+    def __init__(self, price):
+        self.price = price
+
+##creating items
+coffee = item(3)
+frappucino = item(4)
+milkshake = item(5)
+soda = item (3)
+tea = item (4)
+water = item(2)
+cookie = item(2)
+muffin = item(3)
+pie = item(3)
+sandwich = item(2)
+nothing = item(0)
+
 
 class Purchase(object):
     def __init__(self, customer, hour, minute):
@@ -89,7 +105,10 @@ class Purchase(object):
         self.food = food
         self.value = prices[prices['PRODUCT'] == food[0]]['PRICE'].values[0] + \
                      prices[prices['PRODUCT'] == drink[0]]['PRICE'].values[0]
-        # self.payment = different from value as tips might be given
+
+        #self.value2 = drink[0].price + food[0].price
+
+        #self.payment = different from value as tips might be given
 
     def describe_purchase(self):
         print("The purchase of %s at %s:%s o'clock was a %s with %s to eat and had an overall value of %s€."
