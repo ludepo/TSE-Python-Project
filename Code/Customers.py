@@ -4,120 +4,136 @@ import pandas as pd
 import numpy as np
 import os
 
-importpath = os.path.abspath("../Results/dfprobs.csv")
+importpath = os.path.abspath("./Results/dfprobs.csv")
 dfprob = pd.read_csv(importpath, sep=";")
 
 dfprob.index = dfprob['ID']
 dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
 dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
-prices = {'PRODUCT': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water',
-                      'cookie', 'muffin', 'pie', 'sandwich', 'nothing'],
-          'PRICE': [3, 4, 5, 3, 3, 2, 2, 3, 3, 2, 0]}
-prices = pd.DataFrame(prices)
-
+# create superclass for type of customer ("default customer" 0 normal one time customer)
 class Customer(object):
     def __init__(self):
-        self.ID = "CID" + str(uuid.uuid1())
+        self.ID = "CID" + str(uuid.uuid1()) # unique ID
         self.type = "normal one time"
         self.money_spent = 0
         self.budget = 100
-        self.purchases = []
+        self.purchases = [] # note that appended purchases will be objects of class "Purchase()"
         self.tip = 0
 
+    # method for telling what drinks have been bought in the past
     def drinks_bought(self):
         beverages = []
         for i in range(len(self.purchases)):
-            beverages.append(self.purchases[i].drink[0])
+            beverages.append(self.purchases[i].drink.name)
         print("The customer %s has bought %s." % (self.ID, beverages))  # to improve: print not list but elements alone
 
+    # method for telling what food has been bought in the past
     def food_bought(self):
         snacks = []
         for i in range(len(self.purchases)):
-            snacks.append(self.purchases[i].food[0])
+            snacks.append(self.purchases[i].food.name)
         print("The customer %s has bought %s." % (self.ID, snacks))  # to improve: print not list but elements alone
 
+    # method for telling complete history of purchases
     def purchase_history(self):
         history = []
         for i in range(len(self.purchases)):
-            history.append([self.purchases[i].time, self.purchases[i].drink[0],
-                            self.purchases[i].food[0], self.purchases[i].value])
+            history.append([self.purchases[i].time, self.purchases[i].drink.name,
+                            self.purchases[i].food.name, self.purchases[i].value])
         print("The customer %s has made the following purchases: %s" % (self.ID, history))
 
-
+# create subclass for customers from Tripadvisor (differs in propensity to give tips)
 class Tripadvised(Customer):
     def __init__(self):
         super().__init__()
         self.type = "tripadvisor one time"
-        self.tip = random.choice(range(100, 1001)) / 100
+        self.tip = random.choice(range(100, 1001))/100
 
-
+# create subclass for normal returning customer (differs in available budget)
 class Returner(Customer):
     def __init__(self):
         super().__init__()
         self.type = "normal returning"
         self.budget = 250
 
-
+# create subclass for normal returning Hipster customer(differs in available budget)
 class Hipster(Customer):
     def __init__(self):
         super().__init__()
         self.type = "hipster returning"
         self.budget = 500
 
+# create class do define items that are sold in cafe as objects
 class item(object):
-    def __init__(self, price):
+    def __init__(self, name, price, type):
         self.price = price
+        self.name = name
+        self.type = type
 
-##creating items
-coffee = item(3)
-frappucino = item(4)
-milkshake = item(5)
-soda = item (3)
-tea = item (4)
-water = item(2)
-cookie = item(2)
-muffin = item(3)
-pie = item(3)
-sandwich = item(2)
-nothing = item(0)
-
-
+# create class for purchases that allows to create objects for the individual purchases
 class Purchase(object):
     def __init__(self, customer, hour, minute):
-        self.customer = customer
+        self.customer = customer # note that customer will be an object
         self.time = [hour, minute]
 
-        food = ['cookie', 'muffin', 'pie', 'sandwich', 'nothing']
-        foodprob = dfprob[['FOOD_cookie', 'FOOD_muffin', 'FOOD_pie', 'FOOD_sandwich', 'FOOD_nothing', 'HOUR', 'MINUTE']]
-        foodprob = foodprob[(foodprob['HOUR'] == hour) & (foodprob['MINUTE'] == minute)].drop(['HOUR', 'MINUTE'],
-                                                                                              axis=1)
-        food = random.choices(food, weights=(foodprob.stack().tolist()), k=1)
+        # get the probabilities for the respective items at the given hour and minute
+        prob = dfprob.drop('ID', axis=1)
+        prob = prob[(prob['HOUR'] == hour) & (prob['MINUTE'] == minute)].drop(['HOUR', 'MINUTE'],axis=1)
 
-        drink = ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water']
-        drinkprob = dfprob[['DRINK_coffee', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_soda',
-                            'DRINK_tea', 'DRINK_water', 'HOUR', 'MINUTE']]
-        drinkprob = drinkprob[(drinkprob['HOUR'] == hour) & (drinkprob['MINUTE'] == minute)].drop(['HOUR', 'MINUTE'],
-                                                                                                  axis=1)
-        drink = random.choices(drink, weights=(drinkprob.stack().tolist()), k=1)
+        # match the items with the given probability for the hour and the minute
+        assignedprob = []
+        for i in items:
+            for col in prob.columns:
+                if i.name in col:
+                    assignedprob.append([i, prob[col].values[0]])
 
-        self.drink = drink
-        self.food = food
-        self.value = prices[prices['PRODUCT'] == food[0]]['PRICE'].values[0] + \
-                     prices[prices['PRODUCT'] == drink[0]]['PRICE'].values[0]
+        # distinguish between food and drinks and their respective probabilities, assign to respective list
+        drinks = []; drinksprob = []; food = []; foodprob = []
+        for i in assignedprob:
+            if i[0].type == "food":
+                food.append(i[0])
+                foodprob.append(i[1])
+            elif i[0].type == "drink":
+                drinks.append(i[0])
+                drinksprob.append(i[1])
+            else:
+                print("ERROR")
 
-        #self.value2 = drink[0].price + food[0].price
+        # run lottery for what food and what drink is chosen given the items and their probabilities
+        food = random.choices(food, weights = foodprob, k=1)
+        drink = random.choices(drinks, weights = drinksprob, k=1)
 
-        #self.payment = different from value as tips might be given
+        self.drink = drink[0] # note that drink will be an object
+        self.food = food[0] # note that food will also be an object
+        self.value = food[0].price + drink[0].price
+        self.payment = self.value + self.customer.tip # not that payment might differ from value since tip is possible
+        self.tip = self.payment - self.value
 
     def describe_purchase(self):
-        print("The purchase of %s at %s:%s o'clock was a %s with %s to eat and had an overall value of %s€."
-              % (self.customer.ID, self.time[0], self.time[1], self.drink[0], self.food[0], self.value))
+        print("The purchase of %s at %s:%s o'clock was a %s with %s to eat and had an overall value of %s€ with %s€ tips."
+              % (self.customer.ID, self.time[0], self.time[1], self.drink.name, self.food.name, self.value, self.tip))
 
 
 ###### Simulations file ###############################################################################################
 
-# Prepare dtataframe that will associate a purchase object to a customer object at given times
+# create items that are sold in cafe: item(name, price, type)
+items = [item("coffee", 3, "drink"),
+         item("frappucino", 4, "drink"),
+         item("milkshake", 5, "drink"),
+         item ("soda", 3, "drink"),
+         item("tea", 4, "drink"),
+         item("water", 2, "drink"),
+         item("cookie", 2, "food"),
+         item("muffin", 3, "food"),
+         item("pie", 3, "food"),
+         item("sandwich", 2, "food"),
+         item("nothing", 0, "food")]
+
+for i in items:
+    print("Item: %s, price: %s" %(i.name, i.price))
+
+# Dataframe that will associate a purchase object to a customer object at given times
 transactions = dfprob[['HOUR', 'MINUTE']]
 transactions['CUSTOMER'] = ""
 transactions['PURCHASE'] = ""
@@ -149,8 +165,8 @@ for i in range(0, len(transactions)):
                                            transactions['HOUR'].values[i],
                                            transactions['MINUTE'].values[i])
     # update attributes of customer that did the purchase
-    transactions['CUSTOMER'][i].money_spent += transactions['PURCHASE'][i].value  # change to payment once tips are done
-    transactions['CUSTOMER'][i].budget -= transactions['PURCHASE'][i].value
+    transactions['CUSTOMER'][i].money_spent += transactions['PURCHASE'][i].payment  # change to payment once tips are done
+    transactions['CUSTOMER'][i].budget -= transactions['PURCHASE'][i].payment
     transactions['CUSTOMER'][i].purchases.append(transactions['PURCHASE'][i])
 
 test = []
