@@ -4,12 +4,6 @@ import pandas as pd
 import numpy as np
 import os
 
-importpath = os.path.abspath("./Results/dfprobs.csv")
-dfprob = pd.read_csv(importpath, sep=";")
-
-dfprob.index = dfprob['ID']
-dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
-dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
 # create superclass for type of customer ("default customer" 0 normal one time customer)
 class Customer(object):
@@ -73,12 +67,12 @@ class item(object):
 
 # create class for purchases that allows to create objects for the individual purchases
 class Purchase(object):
-    def __init__(self, customer, hour, minute):
+    def __init__(self, customer, hour, minute, probabilities): # probabilities is dataframe obtained in Exploratory.py
         self.customer = customer # note that customer will be an object
         self.time = [hour, minute]
 
         # get the probabilities for the respective items at the given hour and minute
-        prob = dfprob.drop('ID', axis=1)
+        prob = probabilities.drop('ID', axis=1)
         prob = prob[(prob['HOUR'] == hour) & (prob['MINUTE'] == minute)].drop(['HOUR', 'MINUTE'],axis=1)
 
         # match the items with the given probability for the hour and the minute
@@ -116,13 +110,15 @@ class Purchase(object):
 
 
 ###### Simulations file ###############################################################################################
+importpath = os.path.abspath("./Results/dfprobs.csv")
+
 
 # create items that are sold in cafe: item(name, price, type)
 items = [item("coffee", 3, "drink"),
          item("frappucino", 4, "drink"),
          item("milkshake", 5, "drink"),
          item ("soda", 3, "drink"),
-         item("tea", 4, "drink"),
+         item("tea", 3, "drink"),
          item("water", 2, "drink"),
          item("cookie", 2, "food"),
          item("muffin", 3, "food"),
@@ -133,21 +129,21 @@ items = [item("coffee", 3, "drink"),
 for i in items:
     print("Item: %s, price: %s" %(i.name, i.price))
 
-# Dataframe that will associate a purchase object to a customer object at given times
-transactions = dfprob[['HOUR', 'MINUTE']]
-transactions['CUSTOMER'] = ""
-transactions['PURCHASE'] = ""
-transactions['CUSTBUDG'] = ""
-transactions['MONEYSPENT'] = ""
 
-# Create list of returning customers
-ReturningCust = [Returner() for i in
-                 range(667)]  # probability 2/3 for being normal returning customer (out of 1000 returning)
-ReturningCust.extend([Hipster() for i in range(333)])  # probability 1/3 for being hipster
+# load dataframe with probabilities obtained from Exploratory.py
+dfprob = pd.read_csv(importpath, sep=";")
+dfprob.index = dfprob['ID']
+dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
+dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
 
-# Create function that defines what type of customer enters the cafe for a given time
-def ChooseCustomer(time):
+# create list of returning customers
+ReturningCust = [Returner() for i in range(66)]  # prob = 2/3 for being normal returning customer (out of 1000 returning)
+ReturningCust.extend([Hipster() for i in range(33)])  # prob = 1/3 for being hipster
+
+
+# create function that defines what type of customer enters the cafe for a given time
+def ChooseCustomer():
     liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if
               ReturningCust[i].budget > 8]  # is returner solvent?
     returner = random.choice(liquid)  # define type of returner (normal/hipster)
@@ -156,30 +152,49 @@ def ChooseCustomer(time):
                               k=1)  # 8% tripadvisor customer
     return customer[0]
 
+# create function that will assign a purchase object for a given customer at a given hour and minute
+def MakePurchase(customer, hour, minute, probabilities): # probabilities referes to dataframe obtained in Exploratory.py
+    purchase = Purchase(customer, hour, minute, probabilities) # create purchase object given customer, hour and minute
+    customer.money_spent += purchase.payment # update money_spent attribute of chosen customer
+    customer.budget -= purchase.payment # update budget of chosen customer
+    customer.purchases.append(purchase) # update purchase history of chosen customer
+    return purchase
 
-# Assign type of customer per timeslot, find purchase object of the respective customer
-for i in range(0, len(transactions)):
-    # define customer of transaction and purchase object
-    transactions['CUSTOMER'][i] = ChooseCustomer(i)
-    transactions['PURCHASE'][i] = Purchase(transactions['CUSTOMER'].values[i],
-                                           transactions['HOUR'].values[i],
-                                           transactions['MINUTE'].values[i])
-    # update attributes of customer that did the purchase
-    transactions['CUSTOMER'][i].money_spent += transactions['PURCHASE'][i].payment  # change to payment once tips are done
-    transactions['CUSTOMER'][i].budget -= transactions['PURCHASE'][i].payment
-    transactions['CUSTOMER'][i].purchases.append(transactions['PURCHASE'][i])
+# create function to simulate one day
+def SimulateDay(probabilities):
+    transactions = probabilities[['HOUR', 'MINUTE']] # create dataframe that will contain the transactions
+    transactions['CUSTOMER'] = None
+    transactions['PURCHASE'] = None
+    for i in range(0, len(transactions)):
+        transactions['CUSTOMER'][i] = ChooseCustomer() # assign customer object for given time
+        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i], # assign purchase object
+                                                   transactions['HOUR'].values[i],
+                                                   transactions['MINUTE'].values[i],
+                                                   probabilities)
+    return transactions
 
-test = []
+# simulate one day
+transactions = SimulateDay(dfprob)
+
+
+# create function to simulate five years
+
+
+
+
+
+
+testmoneyspent = []
 for i in range(0, len(ReturningCust)):
-    test.append(ReturningCust[i].money_spent)
+    testmoneyspent.append(ReturningCust[i].money_spent)
 
-test2 = []
+testbudget = []
 for i in range(0, len(ReturningCust)):
-    test2.append(ReturningCust[i].budget)
+    testbudget.append(ReturningCust[i].budget)
 
-test3 = []
+testpurchases= []
 for i in range(0, len(ReturningCust)):
-    test3.append(ReturningCust[i].purchases)
+    testpurchases.append(ReturningCust[i].purchases)
 
 # Give examples of purchases
 print(transactions['PURCHASE'][0].describe_purchase(),
