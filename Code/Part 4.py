@@ -36,12 +36,19 @@ df = df.fillna('nothing')
 
 #Returning customer table
 returners=df[df['CUSTOMER'].duplicated(keep=False)]
-returners=returners.sort_values('CUSTOMER')
-
 returners=returners.assign(pro=returners.TIME.map(returners.TIME.value_counts(normalize=True)))
-returners=returners.sort_values('TIME')
 
-pdf=returners[['TIME','pro']]
-pdf.drop_duplicates()
-returners[['TIME','pro']].plot('TIME', figsize=(15,8))
+returners.drop_duplicates(subset=['CUSTOMER'], keep=False)
+returners[['TIME','pro']].plot('TIME', figsize=(15,8))#graph for returners
 
+#One-time customer
+onetimer= df.drop_duplicates(subset= ['CUSTOMER'],keep=False)
+onetimer=onetimer.assign(pro=onetimer.TIME.map(onetimer.TIME.value_counts(normalize=True)))
+onetimer[['TIME','pro']].plot('TIME', figsize=(15,8)) #graph for onetime customers
+
+
+
+#
+df['RET']=(df.duplicated(keep=False, subset=['CUSTOMER']))*1
+df['RET'] = 'returner' if df['RET'] == 1 else 'onetimer'
+test=returners.groupby(['TIME', 'FOOD'], axis=1).count()
