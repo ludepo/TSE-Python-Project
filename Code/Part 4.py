@@ -65,7 +65,7 @@ time[['TIME','prob_returner']].plot('TIME', figsize=(15,8))#graph for returners
 df.groupby(['TIME', 'DRINKS']).count()['YEAR'].unstack().plot()
 plt.show()
 
-
+df['price'] = 1 if df['YEAR']>2017 else 0
 #function for change in price
 
 #impact of: unlimited budget for returners? possibility of buying 2 drinks?

@@ -315,6 +315,14 @@ ReturningCust[999].purchase_history()
 
 
 # The prices change from the beginning of 2018 and go up by 20%
+class item(object):
+    def __init__(self, name, price, type):
+        self.name = name
+        self.type = type
+        if transactionsAll['YEAR']<2017:
+            self.price=price
+        else:
+            self.price=1.2*price
 
 
 
