@@ -1,6 +1,7 @@
 import uuid
 import random
 import pandas as pd
+#pip install progressbar2 #I needed to do that first
 from progressbar import progressbar
 from itertools import product, repeat
 import os
@@ -143,7 +144,7 @@ def ChooseCustomer():
 
 
 # create function that will assign a purchase object for a given customer at a given hour and minute
-def MakePurchase(customer, hour, minute, probabilities): # probabilities referes to dataframe obtained in Exploratory.py
+def MakePurchase(customer, hour, minute, probabilities): # probabilities refers to dataframe obtained in Exploratory.py
     purchase = Purchase(customer, hour, minute, probabilities) # create purchase object given customer, hour and minute
     customer.money_spent += purchase.payment # update money_spent attribute of chosen customer
     customer.budget -= purchase.payment # update budget of chosen customer
@@ -243,7 +244,7 @@ transactionsOneDay = SimulateRange(dfprob, start = "2020-11-07", end = "2020-11-
 transactionsTwoMonths = SimulateRange(dfprob, start = "2020-11-01")
 
 # # simulate specified range
-# transactionsAll = SimulateRange(dfprob) # note that command will run approx. 60 min (8GB Ram)
+#transactionsAll = SimulateRange(dfprob) # note that command will run approx. 60 min (8GB Ram)
 transactionsAll.to_csv(exportpath, sep=";", index = False) # save simulated data as csv
 
 # alternatively, simulated data can be loaded from 'Results':
@@ -316,13 +317,20 @@ ReturningCust[999].purchase_history()
 
 # The prices change from the beginning of 2018 and go up by 20%
 class item(object):
-    def __init__(self, name, price, type):
+    def __init__(self, name, initial_price, type):
         self.name = name
         self.type = type
-        if transactionsAll['YEAR']<2017:
-            self.price=price
+        self.initial_price = initial_price
+
+    def price(self):
+        date = # this cannot work as objects do not communicate with functions
+        if date < 2017:
+            self.price = initial_price
         else:
-            self.price=1.2*price
+            self.price=1.2*initial_price
+
+#Other approach: change the value of the purchase in the Purchase() function. But for that we need to have the year as
+##parameter of the function and not only the time.
 
 
 

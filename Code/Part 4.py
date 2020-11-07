@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # define input and output path
-
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
 exportpath = os.path.abspath("./Results/dfprobs.csv")
 
