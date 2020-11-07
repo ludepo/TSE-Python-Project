@@ -101,15 +101,22 @@ class Purchase(object):
         self.drink = drink[0] # note that drink will be an object
         self.food = food[0] # note that food will also be an object
         self.value = food[0].price + drink[0].price
-        self.payment = self.value + self.customer.tip # not that payment might differ from value since tip is possible
-        self.tip = self.payment - self.value
+        self.payment = food[0].price + drink[0].price + customer.tip # not that payment might differ from value since tip is possible
+        self.tip = customer.tip
 
     def describe_purchase(self):
-        print("The purchase of %s at %s:%s o'clock was a %s with %s to eat and had an overall value of %s€ with %s€ tips."
-              % (self.customer.ID, self.time[0], self.time[1], self.drink.name, self.food.name, self.value, self.tip))
+        print("The purchase of %s of type %s at %s:%s o'clock was a %s with %s "
+              "to eat and had an overall value of %s€ with %s€ tips."
+              % (self.customer.ID, self.customer.type, self.time[0], self.time[1],
+                 self.drink.name, self.food.name, self.value, self.tip))
 
 
 ###### Simulations file ###############################################################################################
+from tqdm import tqdm
+from progressbar import progressbar
+from itertools import product
+tqdm.pandas()
+
 importpath = os.path.abspath("./Results/dfprobs.csv")
 
 
@@ -138,14 +145,13 @@ dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
 
 # create list of returning customers
-ReturningCust = [Returner() for i in range(66)]  # prob = 2/3 for being normal returning customer (out of 1000 returning)
-ReturningCust.extend([Hipster() for i in range(33)])  # prob = 1/3 for being hipster
+ReturningCust = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer (out of 1000 returning)
+ReturningCust.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
 
 
 # create function that defines what type of customer enters the cafe for a given time
 def ChooseCustomer():
-    liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if
-              ReturningCust[i].budget > 8]  # is returner solvent?
+    liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if ReturningCust[i].budget > 8]  # is returner solvent?
     returner = random.choice(liquid)  # define type of returner (normal/hipster)
     customer = random.choices([returner, Customer(), Tripadvised()],
                               weights=[20, 72, 8],  # 20% chance for returner, 72% normal one time customer,
@@ -163,23 +169,30 @@ def MakePurchase(customer, hour, minute, probabilities): # probabilities referes
 # create function to simulate one day
 def SimulateDay(probabilities):
     transactions = probabilities[['HOUR', 'MINUTE']] # create dataframe that will contain the transactions
-    transactions['CUSTOMER'] = None
-    transactions['PURCHASE'] = None
-    for i in range(0, len(transactions)):
-        transactions['CUSTOMER'][i] = ChooseCustomer() # assign customer object for given time
-        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i], # assign purchase object
-                                                   transactions['HOUR'].values[i],
-                                                   transactions['MINUTE'].values[i],
-                                                   probabilities)
+    transactions['CUSTOMER'] = [ChooseCustomer() for i in range(len(transactions))]
+    transactions['PURCHASE'] = transactions.apply(
+        lambda x: MakePurchase(x['CUSTOMER'], x['HOUR'], x['MINUTE'], probabilities), axis=1)
     return transactions
-
-# simulate one day
-transactions = SimulateDay(dfprob)
 
 
 # create function to simulate five years
+def SimulateRange(probabilities):
+    daterange = pd.date_range(start="2020-01-01",end="2020-12-31").strftime("%Y-%m-%d").to_list()
+    time = probabilities['ID']
+    transactions = pd.DataFrame({'DATETIME' : [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
+    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H")
+    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M")
+    transactions['CUSTOMER'] = [ChooseCustomer() for i in range(len(transactions))]
+    transactions['PURCHASE'] = transactions.progress_apply(
+        lambda x: MakePurchase(x['CUSTOMER'], x['HOUR'], x['MINUTE'], probabilities), axis=1)
+    return transactions
 
 
+# simulate one day
+transactionsOneDay = SimulateDay(dfprob)
+
+# simulate specified range
+transactionsAll = SimulateRange(dfprob)
 
 
 
@@ -197,6 +210,7 @@ for i in range(0, len(ReturningCust)):
     testpurchases.append(ReturningCust[i].purchases)
 
 # Give examples of purchases
-print(transactions['PURCHASE'][0].describe_purchase(),
-      transactions['PURCHASE'][1].describe_purchase(),
-      transactions['PURCHASE'][2].describe_purchase())
+print(transactionsOneDay['PURCHASE'][0].describe_purchase(),
+      transactionsOneDay['PURCHASE'][1].describe_purchase(),
+      transactionsOneDay['PURCHASE'][2].describe_purchase())
+
