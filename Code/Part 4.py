@@ -12,6 +12,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from numpy import cov
 
 # define input and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
@@ -64,17 +65,20 @@ time[['TIME','prob_returner']].plot('TIME', figsize=(15,8))#graph for returners 
 time[['TIME','prob_onetimer']].plot('TIME', figsize=(15,8))#graph for onetimers: 80% from 8 to 11, 90% from 11 to 13,
 ### 70% rest of the day
 
-
-#TBD: function to integrate those prob
-
-# graph test
+# graph food and drinks
 df.groupby(['TIME', 'DRINKS']).count()['YEAR'].unstack().plot()
-plt.show()
+plt.show() ## coffee is mainly drink before 11, soda alsmost exclusively between 11 and 13
 
 df.groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
-plt.show()
+plt.show() #nothing is ordered as food before 11. sandwiches are only ordered between 13 and 18
 
-df['price'] = 1 if df['YEAR']>2017 else 0
+#correlation
+dftest = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]). \
+    groupby('RET'). \
+    mean()
+
+##
+
 #function for change in price
 
 #impact of: unlimited budget for returners? possibility of buying 2 drinks?
