@@ -1,6 +1,7 @@
 import uuid
 import random
 import pandas as pd
+import numpy as np
 from progressbar import progressbar
 from itertools import product, repeat
 import os
@@ -38,9 +39,8 @@ class Customer(object):
     def purchase_history(self):
         history = []
         for i in range(len(self.purchases)):
-            history.append(["At", self.purchases[i].time, "o'clock a", self.purchases[i].drink.name, "and",
-                            self.purchases[i].food.name, "for", self.purchases[i].value, "€"])
-        print("The customer %s has made the following purchases: %s" % (self.ID, " ".join(i)) for i in history))
+            history.append([self.purchases[i].drink.name, self.purchases[i].food.name])
+        print("The customer %s has made the following purchases: %s" % (self.ID, history))
 
 
 # create subclass for customers from Tripadvisor (differs in propensity to give tips)
@@ -111,7 +111,7 @@ class Purchase(object):
         self.drink = drink[0] # note that drink will be an object
         self.food = food[0] # note that food will also be an object
         self.value = food[0].price + drink[0].price
-        self.payment = food[0].price + drink[0].price + customer.tip # payment might differ from value as tip is possible
+        self.payment = self.value + customer.tip # payment might differ from value as tip is possible
         self.tip = customer.tip
 
     def describe_purchase(self):
@@ -181,8 +181,8 @@ def NoObjects(dataframe): # function serves to show dataframe without objects bu
     dataframe['FOOD'] = dataframe['PURCHASE'].apply(lambda x: x.food.name)
     dataframe['TURNOVER'] = dataframe['PURCHASE'].apply(lambda x: x.value)
     dataframe['TIPS'] = dataframe['PURCHASE'].apply(lambda x: x.tip)
-    dataframe['TIME'] = dataframe['DATETIME'].dt.time
-    dataframe['DATE'] = dataframe['DATETIME'].dt.date
+    dataframe['TIME'] = dataframe['DATETIME'].dt.strftime("%H:%M:%S")
+    dataframe['DATE'] = dataframe['DATETIME'].dt.strftime("%Y-%m-%d")
     dataframe = dataframe.drop(['HOUR', 'MINUTE'], axis = 1)
     return dataframe
 
@@ -242,16 +242,17 @@ ReturningCust.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hi
 import pickle
 
 # simulate two month to see that program works fine
-transactionsTwoMonths = SimulateRange(dfprob,start = "2020-11-01")
-
+transactionsFourMonths = SimulateRange(dfprob,start = "2017-11-01", end = "2018-02-10")
+test = SimulateRange(dfprob,start = "2017-11-01", end = "2018-02-10")
+test = NoObjects(test)
 # # simulate specified range (by default set to five years)
 transactionsAll = SimulateRange(dfprob) # note that command will run approx. 60 min (8GB Ram)
 
 # the data can be transformed to show objects and attributes:
-#transactions = NoObjects(transactionsAll)
+transactions = NoObjects(transactionsFourMonths)
 
 # save simulated data as pickle in order to access objects later again
-# PIK = "Data/transactionsDF.dat"
+# PIK = "Data/transactions.dat"
 # with open(PIK, "wb") as f:
 #     pickle.dump(transactions, f)
 
@@ -265,9 +266,10 @@ transactions = pickle.load(open(PIK, "rb"))
 ## Part III: Visualize and discuss simulation    ***********************************************************************
 ## *********************************************************************************************************************
 import matplotlib.pyplot as plt
-import numpy as np
+
 
 # Give examples of purchases
+
 transactions['PURCHASE'][0].describe_purchase()
 transactions['PURCHASE'][100].describe_purchase()
 transactions['PURCHASE'][1500].describe_purchase()
@@ -278,27 +280,37 @@ print("The average amount spent by a returning customer was %s" %(sum(moneyspent
 
 # How much budget do returning customers have left?
 budgets = [ReturningCust[i].budget for i in range(len(ReturningCust))]
-print("The average budget left for a normal returning customer was %s€ and for a hipster %s€" %(round(sum(budgets[:666])/len(budgets[:666])), round(sum(budgets[667:])/len(budgets[667:]))))
-
+print("The average budget left for a normal returning customer was %s€ and for a hipster %s€"
+      %(round(sum(budgets[:666])/len(budgets[:666])), round(sum(budgets[667:])/len(budgets[667:]))))
 
 
 
 # -- average income during day
-trans_mean_day = transactions.groupby(by='TIME').mean()
-trans_std_day = transactions.groupby(by='TIME').std()
+trans_mean_day = test.groupby(by='TIME').mean().reset_index()
+trans_std_day = test.groupby(by='TIME').std().reset_index()
 
 plt.figure()
-plt.plot(trans_mean_day.index, trans_mean_day)
-plt.fill_between(trans_std_day.index, trans_mean_day - 2 * trans_std_day,trans_mean_day + 2 * trans_std_day, alpha=0.2)
+plt.plot(trans_mean_day.TIME, trans_mean_day.TURNOVER, trans_mean_day.TIPS)
+plt.fill_between(trans_std_day.TIME,
+                 trans_mean_day.TURNOVER - 2 * trans_std_day.TURNOVER,
+                 trans_mean_day.TURNOVER + 2 * trans_std_day.TURNOVER,
+                 color = "b", alpha = 0.2)
+plt.fill_between(trans_std_day.TIME,
+                     trans_mean_day.TIPS - 2 * trans_std_day.TIPS,
+                     trans_mean_day.TIPS + 2 * trans_std_day.TIPS,
+                     color="r", alpha=0.2)
+
 
 # -- average income by types per day
 
 
-trans_mean_type = transactions.groupby(by=['TIME', 'CUSTOMER_TYPE']).mean()
-trans_std_type = transactions.groupby(by=['TIME', 'CUSTOMER_TYPE']).std()
+trans_mean_type = transactions.groupby(by=['TIME', 'CUSTOMER_TYPE']).mean().reset_index()
+trans_std_type = transactions.groupby(by=['TIME', 'CUSTOMER_TYPE']).std().reset_index()
+
+trans_mean_type.plot()
 
 plt.figure()
-plt.plot(trans_mean_type.index, trans_mean_type)
+plt.plot(trans_mean_type.index, trans_mean_type.TURNOVER, ax = plt.subplots())
 plt.fill_between(trans_std_type.index, trans_mean_type - 2 * trans_std_type, trans_mean_type + 2 * trans_std_type,
                      alpha=0.2)
 # -- average income by type over years
@@ -324,9 +336,8 @@ ReturningCust[999].purchase_history()
 # create function that will assign a purchase object for a given customer at a given hour and minute
 def MakePurchase(customer, hour, minute, probabilities, date):  # probabilities refers to dataframe obtained in Exploratory.py
     purchase = Purchase(customer, hour, minute, probabilities)  # create purchase object given customer, hour and minute
-    if (date > "2017-12-31"):
-        purchase.drink.price = purchase.drink.price * 1.2
-        purchase.food.price = purchase.food.price * 1.2
+    if (date.astype('datetime64[D]') > np.datetime64("2017-12-31").astype('datetime64[D]')):
+        purchase.value = purchase.value * 1.2
     else:
         None
     customer.money_spent += purchase.payment  # update money_spent attribute of chosen customer
@@ -353,23 +364,14 @@ def SimulateRange(probabilities, start = "2016-01-01", end = "2020-12-31"):
                                                    transactions['DATETIME'].values[i])
     return transactions
 
-#Other approach: change the value of the purchase in the Purchase() function. But for that we need to have the year as
-##parameter of the function and not only the time.
 
 
 
-# ChooseCust() that does not crash if all returning are bankrupt
-def ChooseCustomer():
-    liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if ReturningCust[i].budget > 8]  # is returner solvent?
-    if liquid != []:
-        returner = random.choice(liquid)  # define type of returner (normal/hipster)
-        customer = random.choices([returner, Customer(), Tripadvised()],
-                                    weights=[20, 72, 8],  # 20% chance for returner, 72% normal one time customer,
-                                    k=1)  # 8% tripadvisor customer
-    else:
-        customer = random.choices([Customer(), Tripadvised()], weights=[90,10], k=1) # if all returners bankrupt
 
-    return customer[0]
+
+
+
+
 
 # ChooseCust() with assumption that returners will not go more often if another returner is bankrupt but instead go
 #     like before
