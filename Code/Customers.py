@@ -1,7 +1,6 @@
 import uuid
 import random
 import pandas as pd
-#pip install progressbar2 #I needed to do that first
 from progressbar import progressbar
 from itertools import product, repeat
 import os
@@ -26,22 +25,22 @@ class Customer(object):
         beverages = []
         for i in range(len(self.purchases)):
             beverages.append(self.purchases[i].drink.name)
-        print("The customer %s has bought %s." % (self.ID, beverages))  # to improve: print not list but elements alone
+        print("The customer %s had a %s." % (self.ID, beverages))  # to improve: print not list but elements alone
 
     # method for telling what food has been bought in the past
     def food_bought(self):
         snacks = []
         for i in range(len(self.purchases)):
             snacks.append(self.purchases[i].food.name)
-        print("The customer %s has bought %s." % (self.ID, snacks))  # to improve: print not list but elements alone
+        print("The customer %s had a %s." % (self.ID, snacks))  # to improve: print not list but elements alone
 
     # method for telling complete history of purchases
     def purchase_history(self):
         history = []
         for i in range(len(self.purchases)):
-            history.append([self.purchases[i].time, self.purchases[i].drink.name,
-                            self.purchases[i].food.name, self.purchases[i].value])
-        print("The customer %s has made the following purchases: %s" % (self.ID, history))
+            history.append(["At", self.purchases[i].time, "o'clock a", self.purchases[i].drink.name, "and",
+                            self.purchases[i].food.name, "for", self.purchases[i].value, "€"])
+        print("The customer %s has made the following purchases: %s" % (self.ID, " ".join(i)) for i in history))
 
 
 # create subclass for customers from Tripadvisor (differs in propensity to give tips)
@@ -176,12 +175,16 @@ def SimulateRange(probabilities, start = "2016-01-01", end = "2020-12-31"):
 
 # reformat dataframe to match it with initial data (show attribute instead of object)
 def NoObjects(dataframe): # function serves to show dataframe without objects but human-readable data
-    transactions = dataframe
-    transactions['CUSTOMER'] = transactions['CUSTOMER'].apply(lambda x: x.ID)
-    transactions['DRINKS'] = transactions['PURCHASE'].apply(lambda x: x.drink)
-    transactions['FOOD'] = transactions['PURCHASE'].apply(lambda x: x.food)
-    transactions = transactions.drop(['HOUR', 'MINUTE', 'PURCHASE'], axis = 1)
-    return transactions
+    dataframe['CUSTOMER_ID'] = dataframe['CUSTOMER'].apply(lambda x: x.ID)
+    dataframe['CUSTOMER_TYPE'] = dataframe['CUSTOMER'].apply(lambda x: x.type)
+    dataframe['DRINKS'] = dataframe['PURCHASE'].apply(lambda x: x.drink.name)
+    dataframe['FOOD'] = dataframe['PURCHASE'].apply(lambda x: x.food.name)
+    dataframe['TURNOVER'] = dataframe['PURCHASE'].apply(lambda x: x.value)
+    dataframe['TIPS'] = dataframe['PURCHASE'].apply(lambda x: x.tip)
+    dataframe['TIME'] = dataframe['DATETIME'].dt.time
+    dataframe['DATE'] = dataframe['DATETIME'].dt.date
+    dataframe = dataframe.drop(['HOUR', 'MINUTE'], axis = 1)
+    return dataframe
 
 
 
@@ -205,7 +208,7 @@ exportpath = os.path.abspath("./Results/transactionsAll.csv")
 items = [item("coffee", 3, "drink"),
          item("frappucino", 4, "drink"),
          item("milkshake", 5, "drink"),
-         item ("soda", 3, "drink"),
+         item("soda", 3, "drink"),
          item("tea", 3, "drink"),
          item("water", 2, "drink"),
          item("cookie", 2, "food"),
@@ -216,7 +219,7 @@ items = [item("coffee", 3, "drink"),
 
 # print the items with their prices
 for i in items:
-    print("Delicious: %s, just: %s€" %(i.name, i.price))
+    print("Delicious %s, just %s€" %(i.name, i.price))
 
 
 # load dataframe with probabilities obtained from Exploratory.py
@@ -236,37 +239,38 @@ ReturningCust.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hi
 ## *********************************************************************************************************************
 ## Part II: Simulation                           ***********************************************************************
 ## *********************************************************************************************************************
-
-# simulate one day
-transactionsOneDay = SimulateRange(dfprob, start = "2020-11-07", end = "2020-11-07")
+import pickle
 
 # simulate two month to see that program works fine
-transactionsTwoMonths = SimulateRange(dfprob, start = "2020-11-01")
+transactionsTwoMonths = SimulateRange(dfprob,start = "2020-11-01")
 
-# # simulate specified range
-#transactionsAll = SimulateRange(dfprob) # note that command will run approx. 60 min (8GB Ram)
-transactionsAll.to_csv(exportpath, sep=";", index = False) # save simulated data as csv
+# # simulate specified range (by default set to five years)
+transactionsAll = SimulateRange(dfprob) # note that command will run approx. 60 min (8GB Ram)
 
-# alternatively, simulated data can be loaded from 'Results':
-transactionsAll = pd.read_csv(exportpath, sep=";")
+# the data can be transformed to show objects and attributes:
+#transactions = NoObjects(transactionsAll)
 
-# the data can be transformed to not show objects but attributes:
-transactions = NoObjects(transactionsAll)
+# save simulated data as pickle in order to access objects later again
+# PIK = "Data/transactionsDF.dat"
+# with open(PIK, "wb") as f:
+#     pickle.dump(transactions, f)
 
+# alternatively, simulated data can be loaded from pickle:
+transactions = pickle.load(open(PIK, "rb"))
 
 
 
 
 ## *********************************************************************************************************************
-## Part III: Visulaize and discuss simulation    ***********************************************************************
+## Part III: Visualize and discuss simulation    ***********************************************************************
 ## *********************************************************************************************************************
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 # Give examples of purchases
-transactionsAll['PURCHASE'][0].describe_purchase()
-transactionsAll['PURCHASE'][100].describe_purchase()
-transactionsAll['PURCHASE'][1500].describe_purchase()
+transactions['PURCHASE'][0].describe_purchase()
+transactions['PURCHASE'][100].describe_purchase()
+transactions['PURCHASE'][1500].describe_purchase()
 
 # How much money was spent by returning customers?
 moneyspent = [ReturningCust[i].money_spent for i in range(len(ReturningCust))]
@@ -274,30 +278,31 @@ print("The average amount spent by a returning customer was %s" %(sum(moneyspent
 
 # How much budget do returning customers have left?
 budgets = [ReturningCust[i].budget for i in range(len(ReturningCust))]
-print("The average budget left for a normal returning customer was %s€ and for a hipster %s€"\
-      %(round(sum(budgets[:666])/len(budgets[:666])), round(sum(budgets[667:])/len(budgets[667:]))))
+print("The average budget left for a normal returning customer was %s€ and for a hipster %s€" %(round(sum(budgets[:666])/len(budgets[:666])), round(sum(budgets[667:])/len(budgets[667:]))))
 
-
-# modify dataframe for analysis
-transactions['TIME'] = transactions['DATETIME'].dt.time
-transactions['DATE'] = transactions['DATETIME'].dt.date
 
 
 
 # -- average income during day
-def IncDaily(dataframe):
-    incdaily = dataframe
-    incdaily['TURNOVER'] = transactionsAll['PURCHASE'].value
-    incdaily['TIPS'] = transactionsAll['PURCHASE'].tip
-    incdaily['TIME'] = transactionsAll['DATETIME'].dt.time
+trans_mean_day = transactions.groupby(by='TIME').mean()
+trans_std_day = transactions.groupby(by='TIME').std()
 
-
-
-
-plt.plot(transactions.groupby(by='TIME').count())
+plt.figure()
+plt.plot(trans_mean_day.index, trans_mean_day)
+plt.fill_between(trans_std_day.index, trans_mean_day - 2 * trans_std_day,trans_mean_day + 2 * trans_std_day, alpha=0.2)
 
 # -- average income by types per day
+
+
+trans_mean_type = transactions.groupby(by=['TIME', 'CUSTOMER_TYPE']).mean()
+trans_std_type = transactions.groupby(by=['TIME', 'CUSTOMER_TYPE']).std()
+
+plt.figure()
+plt.plot(trans_mean_type.index, trans_mean_type)
+plt.fill_between(trans_std_type.index, trans_mean_type - 2 * trans_std_type, trans_mean_type + 2 * trans_std_type,
+                     alpha=0.2)
 # -- average income by type over years
+
 
 # show some buying histories of returning customers for your simulations
 ReturningCust[555].purchase_history()
@@ -316,18 +321,37 @@ ReturningCust[999].purchase_history()
 
 
 # The prices change from the beginning of 2018 and go up by 20%
-class item(object):
-    def __init__(self, name, initial_price, type):
-        self.name = name
-        self.type = type
-        self.initial_price = initial_price
+# create function that will assign a purchase object for a given customer at a given hour and minute
+def MakePurchase(customer, hour, minute, probabilities, date):  # probabilities refers to dataframe obtained in Exploratory.py
+    purchase = Purchase(customer, hour, minute, probabilities)  # create purchase object given customer, hour and minute
+    if (date > "2017-12-31"):
+        purchase.drink.price = purchase.drink.price * 1.2
+        purchase.food.price = purchase.food.price * 1.2
+    else:
+        None
+    customer.money_spent += purchase.payment  # update money_spent attribute of chosen customer
+    customer.budget -= purchase.payment  # update budget of chosen customer
+    customer.purchases.append(purchase)  # update purchase history of chosen customer
 
-    def price(self):
-        date = # this cannot work as objects do not communicate with functions
-        if date < 2017:
-            self.price = initial_price
-        else:
-            self.price=1.2*initial_price
+    return purchase
+
+
+def SimulateRange(probabilities, start = "2016-01-01", end = "2020-12-31"):
+    daterange = pd.date_range(start=start,end=end).strftime("%Y-%m-%d").to_list() # define range of date
+    time = probabilities['ID']
+    transactions = pd.DataFrame({'DATETIME' : [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
+    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H") # get hour from datetime column
+    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M") # get minute from datetime column
+    transactions['CUSTOMER'] = None
+    transactions['PURCHASE'] = None
+    for i in progressbar(range(0, len(transactions))): # *** see comment below
+        transactions['CUSTOMER'][i] = ChooseCustomer() # assign customer object for given time
+        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i], # assign purchase object
+                                                   transactions['HOUR'].values[i],
+                                                   transactions['MINUTE'].values[i],
+                                                   probabilities,
+                                                   transactions['DATETIME'].values[i])
+    return transactions
 
 #Other approach: change the value of the purchase in the Purchase() function. But for that we need to have the year as
 ##parameter of the function and not only the time.
@@ -360,28 +384,4 @@ def ChooseCustomer():
     else:
         customer = random.choices([Customer(), Tripadvised()], weights=[72, 28], k=1)  # if all returners bankrupt
     return customer[0]
-
-
-
-
-
-
-
-
-
-
-
-# create function to simulate one day
-def SimulateDay(probabilities):
-    transactions = probabilities[['HOUR', 'MINUTE']] # create dataframe that will contain the transactions
-    transactions['CUSTOMER'] = None
-    transactions['PURCHASE'] = None
-    for i in progressbar(range(0, len(transactions))):
-        transactions['CUSTOMER'][i] = ChooseCustomer() # assign customer object for given time
-        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i], # assign purchase object
-                                                   transactions['HOUR'].values[i],
-                                                   transactions['MINUTE'].values[i],
-                                                   probabilities)
-    return transactions
-
 
