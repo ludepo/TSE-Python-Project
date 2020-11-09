@@ -76,9 +76,34 @@ plt.show() #nothing is ordered as food before 11. sandwiches are only ordered be
 dftest = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]). \
     groupby('RET'). \
     mean()
+dftest=dftest.transpose()
+dftest=dftest.drop('YEAR')
+dftest= dftest.rename(columns={dftest.columns[0]: "onetimer",dftest.columns[1]:"returner"})
+
+list_onet=dftest['onetimer'].values.tolist()
+list_ret=dftest['returner'].values.tolist()
+
+barWidth = 0.1
+r1 = np.arange(len(list_onet))
+r2 = [x + barWidth for x in r1]
+
+plt.bar(r1, list_onet, width = barWidth, color = 'blue', edgecolor = 'black',  capsize=7, label='onetimers')
+plt.bar(r2, list_ret, width = barWidth, color = 'cyan', edgecolor = 'black',  capsize=7, label='returners')
+plt.xticks([r + barWidth for r in range(len(list_onet))], ['coffee', 'frappucino', 'milkshake','soda','tea','water','cookie','muffin','nthing','pie','sandwich'])
+plt.ylabel('prob')
+plt.legend()
+plt.show()
+
+
+
+
+##bar graph comparing probs
 
 ##
+import pickle
+PIK = "Data/transactionsDF.dat"
+transactions = pickle.load(open(PIK, "rb"))
 
-#function for change in price
+
 
 #impact of: unlimited budget for returners? possibility of buying 2 drinks?
