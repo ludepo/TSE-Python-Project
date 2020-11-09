@@ -90,6 +90,7 @@ dftest= dftest.rename(columns={dftest.columns[0]: "onetimer",dftest.columns[1]:"
 list_onet=dftest['onetimer'].values.tolist()
 list_ret=dftest['returner'].values.tolist()
 
+##bar graph comparing probs for different items
 barWidth = 0.1
 r1 = np.arange(len(list_onet))
 r2 = [x + barWidth for x in r1]
@@ -102,9 +103,6 @@ plt.legend()
 plt.show()
 
 
-
-
-##bar graph comparing probs
 
 ##
 import pickle
