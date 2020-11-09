@@ -1,4 +1,16 @@
+import pandas as pd
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from numpy import cov
+
+
+
+
 #1. Show some buying histories of returning customers for your simulations
+ReturningCust[555].purchase_history()
+ReturningCust[999].purchase_history()
 
 #2.From the provided datast:
 #how many returning cust?
@@ -7,12 +19,7 @@
    # how does this impact their buying history?
     #correlation?
 
-import pandas as pd
-import os
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from numpy import cov
+
 
 # define input and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
@@ -107,3 +114,83 @@ transactions = pickle.load(open(PIK, "rb"))
 
 
 #impact of: unlimited budget for returners? possibility of buying 2 drinks?
+
+
+
+
+
+
+
+
+# What would happen if we lower the returning customers to 50 and simulate the same period?
+## the code would crash if we do not make the additional assumption that once all returning customers are bankrupt,
+## only 90% normal one-time customers or 10% tripadvised customers would enter the cafe (see ChooseCustomers())
+
+
+# The budget of hipsters drops to 40
+## the same as if we would only have 50 returning customers, since the budget of the hipsters would be zero rather
+## quickly. Therefore, the normal returning customers would compensate and also be bankrupt soon. Once all returning
+## customers are bankrupt the code would crash without the additional assumption.
+
+
+# The prices change from the beginning of 2018 and go up by 20%
+# create function that will assign a purchase object for a given customer at a given hour and minute
+def MakePurchase(customer, hour, minute, probabilities, date):  # probabilities refers to dataframe obtained in Exploratory.py
+    purchase = Purchase(customer, hour, minute, probabilities)  # create purchase object given customer, hour and minute
+    if (date.astype('datetime64[D]') > np.datetime64("2017-12-31").astype('datetime64[D]')):
+        purchase.value = purchase.value * 1.2
+    else:
+        None
+    customer.money_spent += purchase.payment  # update money_spent attribute of chosen customer
+    customer.budget -= purchase.payment  # update budget of chosen customer
+    customer.purchases.append(purchase)  # update purchase history of chosen customer
+
+    return purchase
+
+
+def SimulateRange(probabilities, start = "2016-01-01", end = "2020-12-31"):
+    daterange = pd.date_range(start=start,end=end).strftime("%Y-%m-%d").to_list() # define range of date
+    time = probabilities['ID']
+    transactions = pd.DataFrame({'DATETIME' : [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
+    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H") # get hour from datetime column
+    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M") # get minute from datetime column
+    transactions['CUSTOMER'] = None
+    transactions['PURCHASE'] = None
+    for i in progressbar(range(0, len(transactions))): # *** see comment below
+        transactions['CUSTOMER'][i] = ChooseCustomer() # assign customer object for given time
+        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i], # assign purchase object
+                                                   transactions['HOUR'].values[i],
+                                                   transactions['MINUTE'].values[i],
+                                                   probabilities,
+                                                   transactions['DATETIME'].values[i])
+    return transactions
+
+
+# run a new simulation for comparison (smaller time horizon)
+transactions_inflat = SimulateRange(dfprob,start = "2017-11-01", end = "2018-02-10")
+transactions_inflat = NoObjects(transactions_inflat)
+
+
+
+
+
+
+## Impact of: changing assumption that 20% chance for returner even when most returners are bankrupt (instead 0.02%
+#             chance per solvent returner
+
+# ChooseCust() with assumption that returners will not go more often if another returner is bankrupt but instead go
+#     like before
+def ChooseCustomer():
+    liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if ReturningCust[i].budget > 8]  # is returner solvent?
+    allcust = [Customer(), Tripadvised()] # create list for possible customers (note we do not care what Customer() or
+    allcust.extend(liquid)                # Tripadvised() comes, but for Returner() and Hipster() we want to keep track
+    weights = [72, (100-72-len(liquid)*(20/len(ReturningCust)))] # bankrupt returning customers are replaced by Tripadvised
+    weights.extend(list(repeat((20/len(ReturningCust)), len(liquid)))) # prob. of repeating returner dependen on overall nr.
+    if liquid != []:
+        customer = random.choices(allcust, weights=weights, k=1)  # 8% tripadvisor customer
+    else:
+        customer = random.choices([Customer(), Tripadvised()], weights=[72, 28], k=1)  # if all returners bankrupt
+    return customer[0]
+
+
+
