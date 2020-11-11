@@ -9,7 +9,8 @@ types of customers.
 
 ### Prerequisites
 
-To run this project, you will need to instal Python
+To run this project, you will need to install Python. Before running any piece of code, please make sure that 
+you imported the packaged specified at the top of each file. 
 
 ### Files decription
 The project is structured in 4 folders: one for the documentation, one for the data, 
@@ -30,10 +31,10 @@ different items.
 
 The second Code file, "Customer.py", creates the different classes of objects that are needed in the simulation. 
 It creates the different types of customers with given attributes, the food and drinks objects 
-and the purchase object.
+and the purchase object. It also defines the functions that will generate a list of customer and assign a specific
+ purchase to each customer, based on the probabilities obtained previously. 
 
-Finally, the "simulation.py" Code regroups functions that allows to create a five year span of 
-customers' purchases.
+Finally, the "Simulation.py" allows to obtain a 5 years span of customer based on the class and functions created previously. 
 
 Please run the Codes in the following order: Exploratory.py, Customer.py and Simulation.py. 
 
