@@ -2,7 +2,7 @@
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
-
+from numpy import cov
 
 # define input and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
@@ -35,14 +35,20 @@ print(df.CUSTOMER.nunique())
 
 # 2) Create (at least) a bar plot of total amount of sold foods (plot1) and drinks (plot2) over the five years
 
+# -- Count number of each food/drik sold over the 5 years span
 plt.bar(df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).DRINKS,
         df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
-# plt.show()
 
 plt.bar(df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).FOOD,
         df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
-# plt.show()
 
+# -- Does the time of the day impact the choice of food/drinks? SURPRISE...: Yes it does
+df.groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
+df.groupby(['TIME', 'DRINKS']).count()['YEAR'].unstack().plot()
+
+# -- Graph for food and drinks depending on the day: the day as no impact on the chosen food
+df.groupby(['WEEKDAY', 'DRINKS']).count()['YEAR'].unstack().plot.bar()
+df.groupby(['WEEKDAY', 'FOOD']).count()['YEAR'].unstack().plot.bar()
 
 # 3) Determine the average that a customer buys a certain food or drink at any given time:
 dfprob = df.drop(['CUSTOMER', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
