@@ -126,3 +126,8 @@ plt.fill_between(trans_std_type.index, trans_mean_type - 2 * trans_std_type, tra
                      alpha=0.2)
 # -- average income by type over years
 
+#average income by day
+mean_day=transactionsFourMonths.groupby('DATE').sum().reset_index()
+
+mean_turn_day= (mean_day['TURNOVER']).mean() #mean turnover per day is 773$
+mean_tip_day= (mean_day['TIPS']).mean() #mean tips per day is $
