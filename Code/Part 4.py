@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from numpy import cov
-from Code.Class import ReturningCust, Tripadvised
+from Code. import ReturningCust, Tripadvised
 
 
 
@@ -33,7 +33,7 @@ df['FOOD'].isnull().sum()
 df = df.fillna('nothing')
 
 # -- how many returning cust?
-print(df.CUSTOMER.nunique()) ## carefull, here we count the number of purchases made by returners
+print(df.CUSTOMER.nunique()) ## careful, here we count the number of purchases made by returners
 returners = df[df['CUSTOMER'].duplicated(keep=False)]
 returners = returners.drop_duplicates(subset=['CUSTOMER'])
 print(len(returners)) ## there are 1000 customers that are returners
@@ -41,7 +41,7 @@ print(len(returners)) ## there are 1000 customers that are returners
 # -- specific time when returners show up more
 returners=df[df['CUSTOMER'].duplicated(keep=False)]
 returners=returners.assign(prob_returners=returners.TIME.map(returners.TIME.value_counts(normalize=True)))
-returners.drop_duplicates( keep=False) #dataset with probabilities for returners at each time
+returners.drop_duplicates(keep=False) #dataset with probabilities for returners at each time
 
 returners[['TIME','prob_returners']].plot('TIME', figsize=(15,8))#graph for returners: We observe that returners
 ##have specific showing time: they show in the marning, up to 11 am. Then few returners between 11 and 13.
