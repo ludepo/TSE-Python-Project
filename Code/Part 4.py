@@ -85,7 +85,7 @@ r2 = [x + barWidth for x in r1]
 plt.bar(r1, list_onet, width=barWidth, color='blue', edgecolor='black', capsize=7, label='onetimers')
 plt.bar(r2, list_ret, width=barWidth, color='cyan', edgecolor='black', capsize=7, label='returners')
 plt.xticks([r + barWidth for r in range(len(list_onet))],
-           ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water', 'cookie', 'muffin', 'nthing', 'pie',
+           ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water', 'cookie', 'muffin', 'nothing', 'pie',
             'sandwich'])
 plt.ylabel('prob')
 plt.xticks(rotation=45)
@@ -93,15 +93,18 @@ plt.legend()
 plt.show()
 
 # 2.5) Do you see correlations between what returning customers buy and one-timers?
-
+#function to create dataset with probabilities of buying different items depending on type
 def divide(df,x):
     df['RET'] = (df.duplicated(keep=False, subset=['CUSTOMER'])) * 1
     df = df[df['RET'] == x]
     df = df.drop(['CUSTOMER', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE', 'RET'], axis=1)
-    df = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]).groupby[('TIME')].mean()
+    df = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"])
+    df = df.groupby('TIME').mean()
     return df
 
-test = divide(df,1)
+returners = divide(df,1)
+
+onetimers = divide(df,0)
 
 
 # 2.2) Comparison of returners of our generated dataset
