@@ -13,7 +13,7 @@ from itertools import product
 class Customer(object):
     def __init__(self):
         self.ID = "CID" + str(uuid.uuid1()) # unique ID
-        self.type = "normal one time"
+        self.type = "normal_one_time"
         self.money_spent = 0
         self.budget = 100
         self.purchases = [] # note that appended purchases will be objects of class "Purchase()"
@@ -45,7 +45,7 @@ class Customer(object):
 class Tripadvised(Customer):
     def __init__(self):
         super().__init__()
-        self.type = "tripadvisor one time"
+        self.type = "tripadvisor_one_time"
         self.tip = random.choice(range(100, 1001))/100
 
 
@@ -53,7 +53,7 @@ class Tripadvised(Customer):
 class Returner(Customer):
     def __init__(self):
         super().__init__()
-        self.type = "normal returning"
+        self.type = "normal_returning"
         self.budget = 250
 
 
@@ -61,7 +61,7 @@ class Returner(Customer):
 class Hipster(Customer):
     def __init__(self):
         super().__init__()
-        self.type = "hipster returning"
+        self.type = "hipster_returning"
         self.budget = 500
 
 
@@ -128,13 +128,14 @@ class Purchase(object):
 # create function that defines what type of customer enters the cafe for a given time (robust version)
 def ChooseCustomer(ReturningCust):
     liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if ReturningCust[i].budget > 8]  # is returner solvent?
-    if liquid is not None: # if there are still liquid returners
+    if liquid == []: # if all returners are bankrupt
+        customer = random.choices([Customer(), Tripadvised()], weights=[90, 10], k=1)  # if all returners bankrupt
+
+    else: # if there are still liquid returners
         returner = random.choice(liquid)  # define type of returner (normal/hipster)
         customer = random.choices([returner, Customer(), Tripadvised()],
                                   weights=[20, 72, 8],  # 20% chance for returner, 72% normal one time customer,
                                   k=1)  # 8% tripadvisor customer
-    else:
-        customer = random.choices([Customer(), Tripadvised()], weights=[90,10], k=1) # if all returners bankrupt
 
     return customer[0]
 
@@ -180,8 +181,8 @@ def NoObjects(dataframe): # function serves to show dataframe without objects bu
     data['FOOD'] = data['PURCHASE'].apply(lambda x: x.food.name)
     data['TURNOVER'] = data['PURCHASE'].apply(lambda x: x.value)
     data['TIPS'] = data['PURCHASE'].apply(lambda x: x.tip)
-    data['TIME'] = data['DATETIME'].dt.strftime("%H:%M:%S").astype(str)
-    data['DATE'] = data['DATETIME'].dt.strftime("%Y-%m-%d").astype(str)
+    data['TIME'] = data['DATETIME'].dt.strftime("%H:%M:%S")
+    data['DATE'] = data['DATETIME'].dt.date
     data = data.drop(['HOUR', 'MINUTE'], axis = 1)
     return data
 

@@ -43,9 +43,8 @@ dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
 dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
 # create list of returning customers
-ReturningCust = [Returner() for i in
-                 range(667)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
-ReturningCust.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
+ReturningCust = [Returner() for i in range(66)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
+ReturningCust.extend([Hipster() for i in range(33)])  # prob = 1/3 for being hipster
 
 ## *********************************************************************************************************************
 ## Part II: Simulation                           ***********************************************************************
@@ -73,17 +72,17 @@ if answer == "run":
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
-    # get full simulation stored in pickle file
-    transactions = pickle.load(open(PIKdata, "rb"))
-    ReturningCust = pickle.load(open(PIKreturn, "rb"))
     # simulate four month to see that program works fine
-    ReturningCustFourMonth = ReturningCust  # copy list of returning customers just to show changes
-    transactionsFourMonths = SimulateRange(dfprob, ReturningCustFourMonth, items, start="2017-11-01", end="2018-02-10")
+    ReturningCustFourMonth = ReturningCust.copy() # copy list of returning customers just to show changes
+    transactionsFourMonths = SimulateRange(dfprob, ReturningCustFourMonth, items, start="2016-11-01", end="2018-02-10")
     # transform created data to show objects along with their attributes
     transactionsFourMonths = NoObjects(transactionsFourMonths)
     # save simulated data as pickle in order to access objects later again
     pickle.dump(transactionsFourMonths, open(PIKdata4month, "wb"))
-    pickle.dump(ReturningCustFourMonths, open(PIKreturn4month, "wb"))
+    pickle.dump(ReturningCustFourMonth, open(PIKreturn4month, "wb"))
+    # get full simulation stored in pickle file
+    transactions = pickle.load(open(PIKdata, "rb"))
+    ReturningCust = pickle.load(open(PIKreturn, "rb"))
 
 # If input is not specified correctly, this message will appear
 else:
@@ -99,58 +98,60 @@ transactions['PURCHASE'][100].describe_purchase()
 transactions['PURCHASE'][1500].describe_purchase()
 
 # How much money was spent by returning customers?
-moneyspent = [ReturningCust[i].money_spent for i in range(len(ReturningCust))]
-print("The average amount spent by a returning customer was %s€" % (sum(moneyspent) / len(moneyspent)))
+moneyspent = [ReturningCustFourMonth[i].money_spent for i in range(len(ReturningCustFourMonth))]
+print("The average amount spent by a returning customer was %s" %(sum(moneyspent)/len(moneyspent)))
 
 # How much budget do returning customers have left?
-budgets = [ReturningCust[i].budget for i in range(len(ReturningCust))]
+budgets = [ReturningCustFourMonth[i].budget for i in range(len(ReturningCustFourMonth))]
 print("The average budget left for a normal returning customer was %s€ and for a hipster %s€"
-      % (round(sum(budgets[:666]) / len(budgets[:666])), round(sum(budgets[667:]) / len(budgets[667:]))))
+      %(round(sum(budgets[:65])/len(budgets[:65])), round(sum(budgets[65:])/len(budgets[65:]))))
 
 # -- average income during day
-transactions['TIME'] = transactions['TIME'].astype(str)
-# TODO: plot is ugly but if we need a plot with confidence intervals thats the code
-trans_mean_day = transactions.groupby(by='TIME').mean().reset_index()
-trans_std_day = transactions.groupby(by='TIME').std().reset_index()
+trans_mean_day = transactionsFourMonths.groupby(by='TIME').mean().reset_index()
 
 plt.figure()
-plt.plot(trans_mean_day.TIME, trans_mean_day.TURNOVER, trans_mean_day.TIPS)
-plt.fill_between(trans_std_day.TIME, trans_mean_day.TURNOVER - 2 * trans_std_day.TURNOVER,
-                 trans_mean_day.TURNOVER + 2 * trans_std_day.TURNOVER, color="b", alpha=0.2)
-plt.fill_between(trans_std_day.TIME, trans_mean_day.TIPS - 2 * trans_std_day.TIPS,
-                 trans_mean_day.TIPS + 2 * trans_std_day.TIPS, color="r", alpha=0.2)
+plt.plot(trans_mean_day.TIME, trans_mean_day.TURNOVER, label='Turnover mean')
+plt.plot(trans_mean_day.TIME, trans_mean_day.TIPS, label='Tips mean')
+plt.xticks(trans_mean_day['TIME'][::30], trans_mean_day['TIME'][::30])
+plt.legend(frameon=False, loc='center right')
+plt.xlabel('Hour of the day')
+plt.ylabel('Values in €')
+plt.title('Average income during day')
+
 
 # -- aggregated income by types
-trans_sum_type = transactions.groupby(by=['DATE', 'CUSTOMER_TYPE']).sum().reset_index()
+
+trans_sum_type = transactionsFourMonths.groupby(by=['DATE', 'CUSTOMER_TYPE']).sum().reset_index()
 trans_sum_type['TOTAL'] = trans_sum_type['TURNOVER'] + trans_sum_type['TIPS']
 trans_sum_type = trans_sum_type.pivot(index="DATE", columns="CUSTOMER_TYPE", values="TOTAL")
 
-plt.stackplot(trans_sum_type.index, trans_sum_type['hipster returning'], trans_sum_type['normal one time'],
-              trans_sum_type['normal returning'], trans_sum_type['tripadvisor one time'],
-              labels=['Hipster', 'Normal one-time', 'Normal returning', 'Tripadvised'])
+plt.figure()
+plt.stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
+              trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
+              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 plt.legend(bbox_to_anchor=(0.01, .925, .98, 1.5), loc='lower left', mode="expand", ncol=4, borderaxespad=0.)
 plt.ylabel('Value in €')
 plt.xlabel('Date')
 plt.title('Aggregated turnover per day by customer type')
 
-#
-# #-- average income by type over years
-#
-# #average income by day
-# mean_day=transactionsFourMonths.groupby('DATE').sum().reset_index()
-#
-# mean_turn_day= (mean_day['TURNOVER']).mean() #mean turnover per day is 773$
-# mean_tip_day= (mean_day['TIPS']).mean() #mean tips per day is $
 
-data = data.copy(deep=True)  # Make a copy so dataframe not overwritten
+
+#-- average income by type over years
+
+#average income by day
+mean_day=transactionsFourMonths.groupby('DATE').sum().reset_index()
+
+mean_turn_day= (mean_day['TURNOVER']).mean() #mean turnover per day is 773$
+mean_tip_day= (mean_day['TIPS']).mean() #mean tips per day is $
+
 
 ## *********************************************************************************************************************
 ## Part VI: Comparison with given data *********************************************************************************
 ## *********************************************************************************************************************
 
 # load dataframe
-importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
-df = pd.read_csv(importpath, sep=";")
+
+df = pd.read_csv(import_sim_old, sep=";")
 
 
 # Data cleaning

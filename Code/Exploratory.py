@@ -1,6 +1,9 @@
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
+from numpy import cov
+
+
 
 ## *********************************************************************************************************************
 ## I: Define Inputs and prepare data  **********************************************************************************
@@ -17,7 +20,6 @@ df = pd.read_csv(importpath, sep=";")
 print(df.head())
 print(df.dtypes)
 
-
 # add variables for analysis
 def addcolumns(dataframe):  # function serves to add variables for easier grouping of data
     data = dataframe.copy(deep=True)  # Make a copy so dataframe not overwritten
@@ -32,6 +34,9 @@ def addcolumns(dataframe):  # function serves to add variables for easier groupi
 
 df = addcolumns(df)
 
+
+
+
 ## *********************************************************************************************************************
 ## II: Insight of the data  ********************************************************************************************
 ## *********************************************************************************************************************
@@ -44,8 +49,8 @@ print(df.FOOD.value_counts())
 print(df.CUSTOMER.count())
 print(df.CUSTOMER.nunique())
 
-# 2) Create (at least) a bar plot of total amount of sold foods (plot1) and drinks (plot2) over the five years
 
+# 2) Create (at least) a bar plot of total amount of sold foods (plot1) and drinks (plot2) over the five years
 # -- Count number of each food/drik sold over the 5 years span
 plt.bar(df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).DRINKS,
         df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
@@ -66,6 +71,9 @@ df.groupby(['WEEKDAY', 'DRINKS']).count()['YEAR'].unstack().plot.bar()
 plt.show()
 df.groupby(['WEEKDAY', 'FOOD']).count()['YEAR'].unstack().plot.bar()
 plt.show()
+
+
+
 
 ## *********************************************************************************************************************
 ## III: Obtain time probabilities   ************************************************************************************
