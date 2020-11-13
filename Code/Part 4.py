@@ -56,14 +56,13 @@ def Time(df):
     df['RET'] = (df.duplicated(keep=False, subset=['CUSTOMER'])) * 1  # dummy variable for returners
     time = df.drop(['CUSTOMER', 'DRINKS', 'FOOD', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
     time = pd.get_dummies(time, columns=["RET"], prefix=["RET"]).groupby('TIME').mean()
+    time = time.reset_index()
     return time
 
 time=Time(df)
 
-# Graphic for probability of having a returner
-time[['TIME', 'RET_1']].plot('TIME', figsize=(15, 8))
-# Graphic for probability of having a onetimer
-time[['TIME', 'RET_0']].plot('TIME', figsize=(15, 8))
+# Graphic for probability of having a returner or a onetimer
+time[['TIME', 'RET_1', 'RET_0']].plot('TIME', figsize=(15, 8))
 
 # 2.4) How does this impact their buying history?
 def corr(df):
@@ -72,6 +71,7 @@ def corr(df):
     dfcorr = dfcorr.drop('YEAR')
     dfcorr = dfcorr.rename(columns={dfcorr.columns[0]: "onetimer", dfcorr.columns[1]: "returner"})
     return dfcorr
+
 dfcorr = corr(df)
 
 # Graphic comparing probabilities of buying each item by type of customer
@@ -97,15 +97,22 @@ plt.show()
 def divide(df,x):
     df['RET'] = (df.duplicated(keep=False, subset=['CUSTOMER'])) * 1
     df = df[df['RET'] == x]
-    df = df.drop(['CUSTOMER', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE', 'RET'], axis=1)
+    df = df.drop(['CUSTOMER', 'DATETIME', 'WEEKDAY', 'YEAR', 'DATE', 'RET'], axis=1)
     df = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"])
     df = df.groupby('TIME').mean()
+    df = df.reset_index()
     return df
 
 returners = divide(df,1)
-
 onetimers = divide(df,0)
 
+#Graphs for drinks
+onetimers[['TIME', 'DRINK_coffee','DRINK_water', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_soda', 'DRINK_tea']].plot('TIME', figsize=(15, 8))
+returners[['TIME', 'DRINK_coffee','DRINK_water', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_soda', 'DRINK_tea']].plot('TIME', figsize=(15, 8))
+
+#Graphs for food
+onetimers[['TIME', 'FOOD_cookie','FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']].plot('TIME', figsize=(15, 8))
+returners[['TIME', 'FOOD_cookie','FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']].plot('TIME', figsize=(15, 8))
 
 # 2.2) Comparison of returners of our generated dataset
 import pickle
