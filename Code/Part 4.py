@@ -46,14 +46,12 @@ returners = df[df['CUSTOMER'].duplicated(keep=False)]  # dataset with observatio
 returners = returners.assign(prob_returners=returners.TIME.map(returners.TIME.value_counts(normalize=True)))
 returners.drop_duplicates(keep=False)  # dataset with probabilities for returners at each time
 
-returners[['TIME', 'prob_returners']].plot('TIME', figsize=(15, 8))  # graph for returners: We observe that returners
-##have specific showing time: they show in the marning, up to 11 am. Then few returners between 11 and 13.
-###Then, the main time for returners is between 13 and 18
-
+# -- Graph of returning customers over time
+returners[['TIME', 'prob_returners']].plot('TIME', figsize=(15, 8))
 
 # 2.3) Probability of having a onetimer or a returning customer at a given time
 def Time(df):
-    df['RET'] = (df.duplicated(keep=False, subset=['CUSTOMER'])) * 1  # dummy variable for returners
+    df['RET'] = (df.duplicated(keep=False, subset=['CUSTOMER'])) * 1
     time = df.drop(['CUSTOMER', 'DRINKS', 'FOOD', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
     time = pd.get_dummies(time, columns=["RET"], prefix=["RET"]).groupby('TIME').mean()
     time = time.reset_index()
@@ -61,22 +59,22 @@ def Time(df):
 
 time=Time(df)
 
-# Graphic for probability of having a returner or a onetimer
+# -- Graphic for probability of having a returner or a onetimer
 time[['TIME', 'RET_1', 'RET_0']].plot('TIME', figsize=(15, 8))
 
 # 2.4) How does this impact their buying history?
-def corr(df):
-    dfcorr = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]).groupby('RET').mean()
-    dfcorr = dfcorr.transpose()
-    dfcorr = dfcorr.drop('YEAR')
-    dfcorr = dfcorr.rename(columns={dfcorr.columns[0]: "onetimer", dfcorr.columns[1]: "returner"})
-    return dfcorr
+def buy(df):
+    buy = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]).groupby('RET').mean()
+    buy = buy.transpose()
+    buy = buy.drop('YEAR')
+    buy = buy.rename(columns={buy.columns[0]: "onetimer", buy.columns[1]: "returner"})
+    return buy
 
-dfcorr = corr(df)
+buy = buy(df)
 
-# Graphic comparing probabilities of buying each item by type of customer
-list_onet = dfcorr['onetimer'].values.tolist()
-list_ret = dfcorr['returner'].values.tolist()
+# -- Graphic comparing probabilities of buying each item by type of customer
+list_onet = buy['onetimer'].values.tolist()
+list_ret = buy['returner'].values.tolist()
 
 barWidth = 0.3
 r1 = np.arange(len(list_onet))
@@ -106,56 +104,19 @@ def divide(df,x):
 returners = divide(df,1)
 onetimers = divide(df,0)
 
-#Graphs for drinks
+# -- Graphs for drinks
 onetimers[['TIME', 'DRINK_coffee','DRINK_water', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_soda', 'DRINK_tea']].plot('TIME', figsize=(15, 8))
 returners[['TIME', 'DRINK_coffee','DRINK_water', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_soda', 'DRINK_tea']].plot('TIME', figsize=(15, 8))
 
-#Graphs for food
+# -- Graphs for food
 onetimers[['TIME', 'FOOD_cookie','FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']].plot('TIME', figsize=(15, 8))
 returners[['TIME', 'FOOD_cookie','FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']].plot('TIME', figsize=(15, 8))
 
-# 2.2) Comparison of returners of our generated dataset
-import pickle
-
+# 2.6) Comparison of returners of our generated dataset
 PIK = "./Data/transactionsDF.dat"
 transactions = pickle.load(open(PIK, "rb"))
 
-# ELSE: include price in the given data
-# -- assign price to each item and obtain turnover
-prices_drinks = {'DRINKS': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water'],
-                 'PRICE_DRINKS': [3, 4, 5, 3, 3, 2]}
-prices_drinks = pd.DataFrame(prices_drinks)
 
-prices_food = {'FOOD': ['cookie', 'muffin', 'pie', 'sandwich', 'nothing'],
-               'PRICE_FOOD': [2, 3, 3, 2, 0]}
-prices_food = pd.DataFrame(prices_food)
-
-df_price = pd.merge(df, prices_drinks, how='left', on='DRINKS')
-df_price = pd.merge(df_price, prices_food, how='left', on='FOOD')
-
-df_price['TURNOVER'] = df_price['PRICE_FOOD'] + df_price['PRICE_DRINKS']
-
-# -- Assign tips for returners
-# df_price.loc[df_price.RET == 1, 'TIP'] = np.random.randint(0,10) ##PROBLEM: GIVES THE SAME TIP FOR ALL RETURNERS
-df_tips = df_price[df_price.RET == 1]
-df_tips['TIPS'] = (np.random.randint(0, 10, size=len(df_tips)))
-df_tips = df_tips[['CUSTOMER', 'TIPS']]
-df_tips = df_tips.drop_duplicates(
-    subset=['CUSTOMER'])  # CAREFUUL: WE MAKE THE ASSUMPTION THAT EACH RETURNER ALWAYS GIVES THE SAME TIPS
-
-# -- final merge
-df_price = pd.merge(df_price, df_tips, how='left', on='CUSTOMER')
-df_price['TIPS'] = df_price['TIPS'].fillna(0)
-df_price['TIPS'] = df_price['TIPS'].astype(int)
-
-mean_day = df_price.groupby('DATE').sum().reset_index()
-
-mean_turn_day = (
-    mean_day['TURNOVER']).mean()  # mean turnover per day is 772$: very close to what we obtained in our simulation
-mean_tip_day = (mean_day['TIPS']).mean()  # mean tips per day is 157$
-
-
-# impact of: unlimited budget for returners? possibility of buying 2 drinks?
 
 ## *********************************************************************************************************************
 ## PartIII: What would happen if we lower the returning customers to 50 and simulate the same period? ******************
@@ -164,14 +125,10 @@ mean_tip_day = (mean_day['TIPS']).mean()  # mean tips per day is 157$
 ## the code would crash if we do not make the additional assumption that once all returning customers are bankrupt,
 ## only 90% normal one-time customers or 10% tripadvised customers would enter the cafe (see ChooseCustomers())
 
+## *********************************************************************************************************************
+## PartIV: The prices change from the beginning of 2018 and go up by 20%  **********************************************
+## *********************************************************************************************************************
 
-# The budget of hipsters drops to 40
-## the same as if we would only have 50 returning customers, since the budget of the hipsters would be zero rather
-## quickly. Therefore, the normal returning customers would compensate and also be bankrupt soon. Once all returning
-## customers are bankrupt the code would crash without the additional assumption.
-
-
-# The prices change from the beginning of 2018 and go up by 20%
 # create function that will assign a purchase object for a given customer at a given hour and minute
 def MakePurchase(customer, hour, minute, probabilities,
                  date):  # probabilities refers to dataframe obtained in Exploratory.py
@@ -209,6 +166,20 @@ def SimulateRange(probabilities, start="2016-01-01", end="2020-12-31"):
 transactions_inflat = SimulateRange(dfprob, start="2017-11-01", end="2018-02-10")
 transactions_inflat = NoObjects(transactions_inflat)
 
+
+## *********************************************************************************************************************
+## PartV: What would happen if the budget of hipsters drops to 40?  ****************************************************
+## *********************************************************************************************************************
+
+## the same as if we would only have 50 returning customers, since the budget of the hipsters would be zero rather
+## quickly. Therefore, the normal returning customers would compensate and also be bankrupt soon. Once all returning
+## customers are bankrupt the code would crash without the additional assumption.
+
+
+
+## *********************************************************************************************************************
+## PartVI: Open Question ***********************************************************************************************
+## *********************************************************************************************************************
 
 ## Impact of: changing assumption that 20% chance for returner even when most returners are bankrupt (instead 0.02%
 #             chance per solvent returner
