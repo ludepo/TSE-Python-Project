@@ -6,6 +6,9 @@ from numpy import cov
 
 # TODO: clean file
 
+## *********************************************************************************************************************
+## I: Define Inputs and prepare data  **********************************************************************************
+## *********************************************************************************************************************
 
 # define input and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
@@ -19,19 +22,28 @@ print(df.head())
 print(df.dtypes)
 
 # add variables for analysis
-df['DATETIME'] = pd.to_datetime(df['TIME'])
-df['YEAR'] = df.DATETIME.dt.year
-df['WEEKDAY'] = df.DATETIME.dt.day_name()
-df['TIME'] = df.DATETIME.dt.time
-df['DATE'] = df.DATETIME.dt.date
-print(df.dtypes)
 
-df['FOOD'].isnull().sum()
-df = df.fillna('nothing')
+def AddColumns(dataframe):  # function serves to add variables for easier grouping of data
+    data = dataframe.copy(deep=True)  # Make a copy so dataframe not overwritten
+    data['DATETIME'] = pd.to_datetime(data['TIME'])
+    data['YEAR'] = data.DATETIME.dt.year
+    data['WEEKDAY'] = data.DATETIME.dt.day_name()
+    data['TIME'] = data.DATETIME.dt.time
+    data['DATE'] = data.DATETIME.dt.date
+    data['FOOD'] = data['FOOD'].fillna('nothing')
+    return data
 
-# 1) What food and drinks are sold by the coffee bar? How many unique customers did the bar have?
+df = AddColumns(df)
+
+## *********************************************************************************************************************
+## II: Insight of the data  ********************************************************************************************
+## *********************************************************************************************************************
+
+# 1) What food and drinks are sold by the coffee bar?
 print(df.DRINKS.value_counts())
 print(df.FOOD.value_counts())
+
+# -- How many unique customers did the bar have?
 print(df.CUSTOMER.count())
 print(df.CUSTOMER.nunique())
 
@@ -46,19 +58,25 @@ plt.bar(df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', asc
         df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
 plt.show()
 
-# -- Does the time of the day impact the choice of food/drinks? SURPRISE...: Yes it does
+# -- Different foods and drinks sold depending on the time of the day
 df.groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
 plt.show()
 df.groupby(['TIME', 'DRINKS']).count()['YEAR'].unstack().plot()
 plt.show()
 
-# -- Graph for food and drinks depending on the day: the day as no impact on the chosen food
+# -- Graph for food and drinks depending on the week day
 df.groupby(['WEEKDAY', 'DRINKS']).count()['YEAR'].unstack().plot.bar()
 plt.show()
 df.groupby(['WEEKDAY', 'FOOD']).count()['YEAR'].unstack().plot.bar()
 plt.show()
 
-# 3) Determine the average that a customer buys a certain food or drink at any given time:
+## *********************************************************************************************************************
+## III: Obtain time probabilities   ************************************************************************************
+## *********************************************************************************************************************
+
+# Determine the average that a customer buys a certain food or drink at any given time:
+
+
 dfprob = df.drop(['CUSTOMER', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
 dfprob = pd.get_dummies(dfprob, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]). \
     groupby('TIME'). \
@@ -77,10 +95,12 @@ for index, row in dfprob.iterrows():
              row['DRINK_milkshake'], row['DRINK_frappucino'],
              row['FOOD_sandwich'], row['FOOD_muffin'], row['FOOD_cookie'], row['FOOD_pie'], row['FOOD_nothing']))
 
+# Dataframe for probabilities of buying certain drink depending on the time of the day
 dfpropdrink = dfprob[['DRINK_coffee', 'DRINK_soda', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_tea', 'DRINK_water']]
 dfpropdrink.plot.area()
 plt.show()
 
+# Dataframe for probabilities of buying certain food depending on the time of the day
 dfpropfood = dfprob[['FOOD_cookie', 'FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']]
 dfpropfood.plot.area()
 plt.show()

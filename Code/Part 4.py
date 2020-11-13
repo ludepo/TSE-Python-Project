@@ -14,7 +14,7 @@ PIKreturn4month = "./Data/Cust4month.dat"
 
 
 ## *********************************************************************************************************************
-## Part I: Show some buying histories of returning customers for your simulations **************************************
+## I: Show some buying histories of returning customers for your simulations *******************************************
 ## *********************************************************************************************************************
 
 # call method to tell history from customer object for two randomly chosen customers
@@ -25,7 +25,7 @@ ReturningCust[999].purchase_history()
 
 
 ## *********************************************************************************************************************
-## Part II: Analysis of returning customers of the given dataset *******************************************************
+## II: Analysis of returning customers of the given dataset ************************************************************
 ## *********************************************************************************************************************
 
 # load dataframe
@@ -134,7 +134,7 @@ transactions = pickle.load(open(PIK, "rb"))
 
 
 ## *********************************************************************************************************************
-## PartIII: What would happen if we lower the returning customers to 50 and simulate the same period? ******************
+## III: What would happen if we lower the returning customers to 50 and simulate the same period? **********************
 ## *********************************************************************************************************************
 
 ## the code would crash if we do not make the additional assumption that once all returning customers are bankrupt,
@@ -146,7 +146,7 @@ transactionsFourMonths = pickle.load(open(PIKdata, "rb"))
 ReturningCustFourMonths = pickle.load(open(PIKreturn, "rb"))
 
 ## *********************************************************************************************************************
-## PartIV: The prices change from the beginning of 2018 and go up by 20%  **********************************************
+## IV: The prices change from the beginning of 2018 and go up by 20%  **************************************************
 ## *********************************************************************************************************************
 
 # modify MakePurchase() function with if else statement; if date after 2017, prices 20% higher
@@ -190,7 +190,7 @@ transactions_inflat = NoObjects(transactions_inflat)
 
 
 ## *********************************************************************************************************************
-## PartV: What would happen if the budget of hipsters drops to 40?  ****************************************************
+## V: What would happen if the budget of hipsters drops to 40?  ********************************************************
 ## *********************************************************************************************************************
 
 ## the same as if we would only have 50 returning customers, since the budget of the hipsters would be zero rather
@@ -201,7 +201,7 @@ transactions_inflat = NoObjects(transactions_inflat)
 
 
 ## *********************************************************************************************************************
-## PartVI: Open Question ***********************************************************************************************
+## VI: Open Question ***************************************************************************************************
 ## *********************************************************************************************************************
 
 ## Impact of: changing assumption that 20% chance for returner even when most returners are bankrupt (instead 0.02%
