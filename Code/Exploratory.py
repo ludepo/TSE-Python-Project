@@ -1,10 +1,6 @@
-# 0) Import libraries and data
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
-from numpy import cov
-
-# TODO: clean file
 
 ## *********************************************************************************************************************
 ## I: Define Inputs and prepare data  **********************************************************************************
@@ -21,9 +17,9 @@ df = pd.read_csv(importpath, sep=";")
 print(df.head())
 print(df.dtypes)
 
-# add variables for analysis
 
-def AddColumns(dataframe):  # function serves to add variables for easier grouping of data
+# add variables for analysis
+def addcolumns(dataframe):  # function serves to add variables for easier grouping of data
     data = dataframe.copy(deep=True)  # Make a copy so dataframe not overwritten
     data['DATETIME'] = pd.to_datetime(data['TIME'])
     data['YEAR'] = data.DATETIME.dt.year
@@ -33,7 +29,8 @@ def AddColumns(dataframe):  # function serves to add variables for easier groupi
     data['FOOD'] = data['FOOD'].fillna('nothing')
     return data
 
-df = AddColumns(df)
+
+df = addcolumns(df)
 
 ## *********************************************************************************************************************
 ## II: Insight of the data  ********************************************************************************************
@@ -75,7 +72,6 @@ plt.show()
 ## *********************************************************************************************************************
 
 # Determine the average that a customer buys a certain food or drink at any given time:
-
 
 dfprob = df.drop(['CUSTOMER', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
 dfprob = pd.get_dummies(dfprob, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]). \
