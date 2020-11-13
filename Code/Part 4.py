@@ -5,34 +5,45 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from Code.Class import ReturningCust, Tripadvised
 
+# define paths:
+importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
+PIKdata = "./Data/transactionsDF.dat"
+PIKreturn = "./Data/ReturningCust.dat"
+PIKdata4month = "./Data/data4month.dat"
+PIKreturn4month = "./Data/Cust4month.dat"
+
+
 ## *********************************************************************************************************************
 ## Part I: Show some buying histories of returning customers for your simulations **************************************
 ## *********************************************************************************************************************
 
+# call method to tell history from customer object for two randomly chosen customers
 ReturningCust[555].purchase_history()
 ReturningCust[999].purchase_history()
+
+
+
 
 ## *********************************************************************************************************************
 ## Part II: Analysis of returning customers of the given dataset *******************************************************
 ## *********************************************************************************************************************
 
 # load dataframe
-importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
 df = pd.read_csv(importpath, sep=";")
 
+# Add columns to simplify analysis
+def AddColumns(dataframe):  # function serves to add variables for easier grouping of data
+    data = dataframe.copy(deep=True)  # Make a copy so dataframe not overwritten
+    data['DATETIME'] = pd.to_datetime(data['TIME'])
+    data['YEAR'] = data.DATETIME.dt.year
+    data['WEEKDAY'] = data.DATETIME.dt.day_name()
+    data['TIME'] = data.DATETIME.dt.time
+    data['DATE'] = data.DATETIME.dt.date
+    data['FOOD'] = data['FOOD'].fillna('nothing')
+    return data
 
-# Data cleaning
-def Cleandata(dataframe):  # function serves to show dataframe without objects but human-readable data
-    dataframe['DATETIME'] = pd.to_datetime(dataframe['TIME'])
-    dataframe['YEAR'] = dataframe.DATETIME.dt.year
-    dataframe['WEEKDAY'] = dataframe.DATETIME.dt.day_name()
-    dataframe['WEEKDAY'] = dataframe.DATETIME.dt.day_name()
-    dataframe['TIME'] = dataframe.DATETIME.dt.time
-    dataframe['DATE'] = dataframe.DATETIME.dt.date
-    dataframe['FOOD'] = dataframe['FOOD'].fillna('nothing')
-    return dataframe
+df = AddColumns(df)
 
-df = Cleandata(df)
 
 ## 2.1) How many returning customers?
 print(df.CUSTOMER.nunique())  ## carefull, here we count the number of purchases made by returners
@@ -40,14 +51,15 @@ returners = df[df['CUSTOMER'].duplicated(keep=False)]
 returners = returners.drop_duplicates(subset=['CUSTOMER'])
 print(len(returners))  ## there are 1000 customers that are returners
 
-## 2.2) Do returners have specific time when they show up more?
 
+## 2.2) Do returners have specific time when they show up more?
 returners = df[df['CUSTOMER'].duplicated(keep=False)]  # dataset with observations of returners only
 returners = returners.assign(prob_returners=returners.TIME.map(returners.TIME.value_counts(normalize=True)))
 returners.drop_duplicates(keep=False)  # dataset with probabilities for returners at each time
 
 # -- Graph of returning customers over time
 returners[['TIME', 'prob_returners']].plot('TIME', figsize=(15, 8))
+
 
 # 2.3) Probability of having a onetimer or a returning customer at a given time
 def Time(df):
@@ -61,6 +73,7 @@ time=Time(df)
 
 # -- Graphic for probability of having a returner or a onetimer
 time[['TIME', 'RET_1', 'RET_0']].plot('TIME', figsize=(15, 8))
+
 
 # 2.4) How does this impact their buying history?
 def buy(df):
@@ -90,6 +103,7 @@ plt.xticks(rotation=45)
 plt.legend()
 plt.show()
 
+
 # 2.5) Do you see correlations between what returning customers buy and one-timers?
 #function to create dataset with probabilities of buying different items depending on type
 def divide(df,x):
@@ -112,9 +126,10 @@ returners[['TIME', 'DRINK_coffee','DRINK_water', 'DRINK_frappucino', 'DRINK_milk
 onetimers[['TIME', 'FOOD_cookie','FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']].plot('TIME', figsize=(15, 8))
 returners[['TIME', 'FOOD_cookie','FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']].plot('TIME', figsize=(15, 8))
 
+
 # 2.6) Comparison of returners of our generated dataset
-PIK = "./Data/transactionsDF.dat"
 transactions = pickle.load(open(PIK, "rb"))
+
 
 
 
@@ -125,46 +140,53 @@ transactions = pickle.load(open(PIK, "rb"))
 ## the code would crash if we do not make the additional assumption that once all returning customers are bankrupt,
 ## only 90% normal one-time customers or 10% tripadvised customers would enter the cafe (see ChooseCustomers())
 
+# TODO: add simulation and comparison graph
+
+transactionsFourMonths = pickle.load(open(PIKdata, "rb"))
+ReturningCustFourMonths = pickle.load(open(PIKreturn, "rb"))
+
 ## *********************************************************************************************************************
 ## PartIV: The prices change from the beginning of 2018 and go up by 20%  **********************************************
 ## *********************************************************************************************************************
 
-# create function that will assign a purchase object for a given customer at a given hour and minute
-def MakePurchase(customer, hour, minute, probabilities,
-                 date):  # probabilities refers to dataframe obtained in Exploratory.py
-    purchase = Purchase(customer, hour, minute, probabilities)  # create purchase object given customer, hour and minute
+# modify MakePurchase() function with if else statement; if date after 2017, prices 20% higher
+def MakePurchase(customer, hour, minute, probabilities, date):  # additional input "date" required
+    purchase = Purchase(customer, hour, minute, probabilities)
     if (date.astype('datetime64[D]') > np.datetime64("2017-12-31").astype('datetime64[D]')):
-        purchase.value = purchase.value * 1.2
+        purchase.value = purchase.value * 1.2 # if date is after 2017, value of purchase increased 20%
     else:
-        None
-    customer.money_spent += purchase.payment  # update money_spent attribute of chosen customer
-    customer.budget -= purchase.payment  # update budget of chosen customer
-    customer.purchases.append(purchase)  # update purchase history of chosen customer
+        None # if date is before 2018, nothing changes
+    customer.money_spent += purchase.payment
+    customer.budget -= purchase.payment
+    customer.purchases.append(purchase)
 
     return purchase
 
-
+# the SimulateRange() function needs to be modified too since MakePurchase() now requires date input
 def SimulateRange(probabilities, start="2016-01-01", end="2020-12-31"):
-    daterange = pd.date_range(start=start, end=end).strftime("%Y-%m-%d").to_list()  # define range of date
+    daterange = pd.date_range(start=start, end=end).strftime("%Y-%m-%d").to_list()
     time = probabilities['ID']
     transactions = pd.DataFrame({'DATETIME': [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
-    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H")  # get hour from datetime column
-    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M")  # get minute from datetime column
+    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H")
+    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M")
     transactions['CUSTOMER'] = None
     transactions['PURCHASE'] = None
-    for i in progressbar(range(0, len(transactions))):  # *** see comment below
-        transactions['CUSTOMER'][i] = ChooseCustomer()  # assign customer object for given time
-        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i],  # assign purchase object
+    for i in progressbar(range(0, len(transactions))):
+        transactions['CUSTOMER'][i] = ChooseCustomer()
+        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i],
                                                    transactions['HOUR'].values[i],
                                                    transactions['MINUTE'].values[i],
                                                    probabilities,
-                                                   transactions['DATETIME'].values[i])
+                                                   transactions['DATETIME'].values[i]) # date passed to function
     return transactions
 
 
-# run a new simulation for comparison (smaller time horizon)
+# run a new simulation (four month time horizon) to compare to four month simulation
 transactions_inflat = SimulateRange(dfprob, start="2017-11-01", end="2018-02-10")
 transactions_inflat = NoObjects(transactions_inflat)
+
+# TODO: compare both simulations with comparison graph
+
 
 
 ## *********************************************************************************************************************
@@ -175,6 +197,7 @@ transactions_inflat = NoObjects(transactions_inflat)
 ## quickly. Therefore, the normal returning customers would compensate and also be bankrupt soon. Once all returning
 ## customers are bankrupt the code would crash without the additional assumption.
 
+# TODO: add simulation and comparison graph
 
 
 ## *********************************************************************************************************************
@@ -200,3 +223,5 @@ def ChooseCustomer():
     else:
         customer = random.choices([Customer(), Tripadvised()], weights=[72, 28], k=1)  # if all returners bankrupt
     return customer[0]
+
+# TODO: add comparison graph

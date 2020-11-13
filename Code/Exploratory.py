@@ -4,6 +4,9 @@ import os
 import matplotlib.pyplot as plt
 from numpy import cov
 
+# TODO: clean file
+
+
 # define input and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
 exportpath = os.path.abspath("./Results/dfprobs.csv")

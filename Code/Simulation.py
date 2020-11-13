@@ -15,6 +15,8 @@ exportpath = os.path.abspath("./Results/transactionsAll.csv")
 # define path where pickle file of full simulation should be saved/ loaded from
 PIKdata = "./Data/transactionsDF.dat"
 PIKreturn = "./Data/ReturningCust.dat"
+PIKdata4month = "./Data/data4month.dat"
+PIKreturn4month = "./Data/Cust4month.dat"
 
 
 # create items that are sold in cafe: item(name, price, type)
@@ -83,6 +85,9 @@ elif answer == "load":
     transactionsFourMonths = SimulateRange(dfprob, ReturningCustFourMonth, items, start="2017-11-01", end="2018-02-10")
     # transform created data to show objects along with their attributes
     transactionsFourMonths = NoObjects(transactionsFourMonths)
+    # save simulated data as pickle in order to access objects later again
+    pickle.dump(transactionsFourMonths, open(PIKdata4month, "wb"))
+    pickle.dump(ReturningCustFourMonths, open(PIKreturn4month, "wb"))
 
 # If input is not specified correctly, this message will appear
 else:
@@ -144,6 +149,8 @@ plt.title('Aggregated turnover per day by customer type')
 #
 # mean_turn_day= (mean_day['TURNOVER']).mean() #mean turnover per day is 773$
 # mean_tip_day= (mean_day['TIPS']).mean() #mean tips per day is $
+
+data = data.copy(deep=True)  # Make a copy so dataframe not overwritten
 
 ## *********************************************************************************************************************
 ## Part VI: Comparison with given data *********************************************************************************

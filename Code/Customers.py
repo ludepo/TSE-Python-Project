@@ -121,7 +121,6 @@ class Purchase(object):
 
 
 
-
 ## *********************************************************************************************************************
 ##     Part II: Functions        ***************************************************************************************
 ## *********************************************************************************************************************
@@ -129,7 +128,7 @@ class Purchase(object):
 # create function that defines what type of customer enters the cafe for a given time (robust version)
 def ChooseCustomer(ReturningCust):
     liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if ReturningCust[i].budget > 8]  # is returner solvent?
-    if len(liquid) == 0:
+    if liquid is not None: # if there are still liquid returners
         returner = random.choice(liquid)  # define type of returner (normal/hipster)
         customer = random.choices([returner, Customer(), Tripadvised()],
                                   weights=[20, 72, 8],  # 20% chance for returner, 72% normal one time customer,
@@ -174,14 +173,15 @@ def SimulateRange(probabilities, ReturningCust, items, start = "2016-01-01", end
 
 # reformat dataframe to match it with initial data (show attribute instead of object)
 def NoObjects(dataframe): # function serves to show dataframe without objects but human-readable data
-    dataframe['CUSTOMER_ID'] = dataframe['CUSTOMER'].apply(lambda x: x.ID)
-    dataframe['CUSTOMER_TYPE'] = dataframe['CUSTOMER'].apply(lambda x: x.type)
-    dataframe['DRINKS'] = dataframe['PURCHASE'].apply(lambda x: x.drink.name)
-    dataframe['FOOD'] = dataframe['PURCHASE'].apply(lambda x: x.food.name)
-    dataframe['TURNOVER'] = dataframe['PURCHASE'].apply(lambda x: x.value)
-    dataframe['TIPS'] = dataframe['PURCHASE'].apply(lambda x: x.tip)
-    dataframe['TIME'] = dataframe['DATETIME'].dt.strftime("%H:%M:%S")
-    dataframe['DATE'] = dataframe['DATETIME'].dt.strftime("%Y-%m-%d")
-    dataframe = dataframe.drop(['HOUR', 'MINUTE'], axis = 1)
-    return dataframe
+    data = dataframe.copy(deep=True)  # Make a copy so dataframe not overwritten
+    data['CUSTOMER_ID'] = data['CUSTOMER'].apply(lambda x: x.ID)
+    data['CUSTOMER_TYPE'] = data['CUSTOMER'].apply(lambda x: x.type)
+    data['DRINKS'] = data['PURCHASE'].apply(lambda x: x.drink.name)
+    data['FOOD'] = data['PURCHASE'].apply(lambda x: x.food.name)
+    data['TURNOVER'] = data['PURCHASE'].apply(lambda x: x.value)
+    data['TIPS'] = data['PURCHASE'].apply(lambda x: x.tip)
+    data['TIME'] = data['DATETIME'].dt.strftime("%H:%M:%S").astype(str)
+    data['DATE'] = data['DATETIME'].dt.strftime("%Y-%m-%d").astype(str)
+    data = data.drop(['HOUR', 'MINUTE'], axis = 1)
+    return data
 
