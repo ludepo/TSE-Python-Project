@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 ## *********************************************************************************************************************
-## Part I: Define Inputs                         ***********************************************************************
+## Part I: Define Inputs ***********************************************************************************************
 ## *********************************************************************************************************************
 
 # import and export path
@@ -17,7 +17,6 @@ PIKdata = "./Data/transactionsDF.dat"
 PIKreturn = "./Data/ReturningCust.dat"
 PIKdata4month = "./Data/data4month.dat"
 PIKreturn4month = "./Data/Cust4month.dat"
-
 
 # create items that are sold in cafe: item(name, price, type)
 items = [item("coffee", 3, "drink"),
@@ -43,20 +42,17 @@ dfprob.index = dfprob['ID']
 dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
 dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
-
 # create list of returning customers
-ReturningCust = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
+ReturningCust = [Returner() for i in
+                 range(667)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
 ReturningCust.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
-
-
-
 
 ## *********************************************************************************************************************
 ## Part II: Simulation                           ***********************************************************************
 ## *********************************************************************************************************************
 
 ## Important note:
-## Following choice has to be taken: Either full simulation in line 68 can be run which will take approx. 40 min (8GB ram)
+## Following choice has to be taken: Either full simulation in line 68 can be run which will take approx. 40min (8GB ram)
 ## or the pickle file for the full simulation and the related updated list of returning customers can be loaded. If the
 ## second option is chosen, a simulation for four month will be executed in order to show that the code works.
 
@@ -81,7 +77,7 @@ elif answer == "load":
     transactions = pickle.load(open(PIKdata, "rb"))
     ReturningCust = pickle.load(open(PIKreturn, "rb"))
     # simulate four month to see that program works fine
-    ReturningCustFourMonth = ReturningCust # copy list of returning customers just to show changes
+    ReturningCustFourMonth = ReturningCust  # copy list of returning customers just to show changes
     transactionsFourMonths = SimulateRange(dfprob, ReturningCustFourMonth, items, start="2017-11-01", end="2018-02-10")
     # transform created data to show objects along with their attributes
     transactionsFourMonths = NoObjects(transactionsFourMonths)
@@ -92,9 +88,6 @@ elif answer == "load":
 # If input is not specified correctly, this message will appear
 else:
     print("Either 'run' or 'load' needs to be specified!")
-
-
-
 
 ## *********************************************************************************************************************
 ## Part III: Visualize and discuss simulation    ***********************************************************************
@@ -107,14 +100,12 @@ transactions['PURCHASE'][1500].describe_purchase()
 
 # How much money was spent by returning customers?
 moneyspent = [ReturningCust[i].money_spent for i in range(len(ReturningCust))]
-print("The average amount spent by a returning customer was %s" %(sum(moneyspent)/len(moneyspent)))
+print("The average amount spent by a returning customer was %s€" % (sum(moneyspent) / len(moneyspent)))
 
 # How much budget do returning customers have left?
 budgets = [ReturningCust[i].budget for i in range(len(ReturningCust))]
 print("The average budget left for a normal returning customer was %s€ and for a hipster %s€"
-      %(round(sum(budgets[:666])/len(budgets[:666])), round(sum(budgets[667:])/len(budgets[667:]))))
-
-
+      % (round(sum(budgets[:666]) / len(budgets[:666])), round(sum(budgets[667:]) / len(budgets[667:]))))
 
 # -- average income during day
 transactions['TIME'] = transactions['TIME'].astype(str)
@@ -124,9 +115,10 @@ trans_std_day = transactions.groupby(by='TIME').std().reset_index()
 
 plt.figure()
 plt.plot(trans_mean_day.TIME, trans_mean_day.TURNOVER, trans_mean_day.TIPS)
-plt.fill_between(trans_std_day.TIME, trans_mean_day.TURNOVER - 2 * trans_std_day.TURNOVER, trans_mean_day.TURNOVER + 2 * trans_std_day.TURNOVER, color="b", alpha=0.2)
-plt.fill_between(trans_std_day.TIME, trans_mean_day.TIPS - 2 * trans_std_day.TIPS, trans_mean_day.TIPS + 2 * trans_std_day.TIPS, color="r", alpha=0.2)
-
+plt.fill_between(trans_std_day.TIME, trans_mean_day.TURNOVER - 2 * trans_std_day.TURNOVER,
+                 trans_mean_day.TURNOVER + 2 * trans_std_day.TURNOVER, color="b", alpha=0.2)
+plt.fill_between(trans_std_day.TIME, trans_mean_day.TIPS - 2 * trans_std_day.TIPS,
+                 trans_mean_day.TIPS + 2 * trans_std_day.TIPS, color="r", alpha=0.2)
 
 # -- aggregated income by types
 trans_sum_type = transactions.groupby(by=['DATE', 'CUSTOMER_TYPE']).sum().reset_index()
@@ -135,7 +127,7 @@ trans_sum_type = trans_sum_type.pivot(index="DATE", columns="CUSTOMER_TYPE", val
 
 plt.stackplot(trans_sum_type.index, trans_sum_type['hipster returning'], trans_sum_type['normal one time'],
               trans_sum_type['normal returning'], trans_sum_type['tripadvisor one time'],
-              labels = ['Hipster','Normal one-time','Normal returning','Tripadvised'])
+              labels=['Hipster', 'Normal one-time', 'Normal returning', 'Tripadvised'])
 plt.legend(bbox_to_anchor=(0.01, .925, .98, 1.5), loc='lower left', mode="expand", ncol=4, borderaxespad=0.)
 plt.ylabel('Value in €')
 plt.xlabel('Date')
@@ -160,8 +152,9 @@ data = data.copy(deep=True)  # Make a copy so dataframe not overwritten
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
 df = pd.read_csv(importpath, sep=";")
 
+
 # Data cleaning
-def Cleandata(dataframe):
+def cleandata(dataframe):
     dataframe['DATETIME'] = pd.to_datetime(dataframe['TIME'])
     dataframe['YEAR'] = dataframe.DATETIME.dt.year
     dataframe['WEEKDAY'] = dataframe.DATETIME.dt.day_name()
@@ -171,41 +164,49 @@ def Cleandata(dataframe):
     dataframe['FOOD'] = dataframe['FOOD'].fillna('nothing')
     return dataframe
 
-df = Cleandata(df)
+
+df = cleandata(df)
 
 # Assign price to each item
 prices_drinks = {'DRINKS': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water'],
-          'PRICE_DRINKS': [3, 4, 5, 3, 3, 2]}
+                 'PRICE_DRINKS': [3, 4, 5, 3, 3, 2]}
 prices_drinks = pd.DataFrame(prices_drinks)
 
-prices_food= {'FOOD': ['cookie', 'muffin', 'pie', 'sandwich', 'nothing'],
-          'PRICE_FOOD': [2, 3, 3, 2, 0]}
+prices_food = {'FOOD': ['cookie', 'muffin', 'pie', 'sandwich', 'nothing'],
+               'PRICE_FOOD': [2, 3, 3, 2, 0]}
 prices_food = pd.DataFrame(prices_food)
 
+
 # function for turnover
-def prices(df):
-    df_prices = pd.merge(df,prices_drinks, how='left', on='DRINKS')
-    df_prices = pd.merge(df_prices, prices_food, how='left', on='FOOD')
-    df_prices['TURNOVER']=df_prices['PRICE_FOOD']+df_prices['PRICE_DRINKS']
-    return df_prices
+def prices(dataframe):
+    dataframe = pd.merge(dataframe, prices_drinks, how='left', on='DRINKS')
+    dataframe = pd.merge(dataframe, prices_food, how='left', on='FOOD')
+    dataframe['TURNOVER'] = dataframe['PRICE_FOOD'] + dataframe['PRICE_DRINKS']
+    return dataframe
+
+
 df_prices = prices(df)
+
 
 # function for tips : we don't know who are the tripadvised customers, so we randomly select 8% of the customers that
 ##will pay a tip
-def tips(df):
-    df_tips = df.sample(frac=.08)
-    df_tips['TIPS'] = (np.random.randint(0, 11, size=len(df_tips)))
-    df_tips = df_tips[['CUSTOMER', 'TIPS']]
-    df_tips['TIPS'] = df_tips['TIPS'].astype(int)
-    df_tips = df_tips.drop_duplicates(subset=['CUSTOMER'])
-    return df_tips
+def tips(dataframe):
+    dataframe = dataframe.sample(frac=.08)
+    dataframe['TIPS'] = (np.random.randint(0, 11, size=len(dataframe)))
+    dataframe = dataframe[['CUSTOMER', 'TIPS']]
+    dataframe['TIPS'] = dataframe['TIPS'].astype(int)
+    dataframe = dataframe.drop_duplicates(subset=['CUSTOMER'])
+    return dataframe
 
-df_tips=tips(df)
+
+df_tips = tips(df)
+
 
 # function for all prices
 def total(df_prices):
     df_prices = pd.merge(df_prices, df_tips, how='left', on='CUSTOMER')
     df_prices['TIPS'] = df_prices['TIPS'].fillna(0)
     return df_prices
+
 
 df_prices = total(df_prices)
