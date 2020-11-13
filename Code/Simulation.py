@@ -161,7 +161,7 @@ importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
 df = pd.read_csv(importpath, sep=";")
 
 # Data cleaning
-def Cleandata(dataframe):  # function serves to show dataframe without objects but human-readable data
+def Cleandata(dataframe):
     dataframe['DATETIME'] = pd.to_datetime(dataframe['TIME'])
     dataframe['YEAR'] = dataframe.DATETIME.dt.year
     dataframe['WEEKDAY'] = dataframe.DATETIME.dt.day_name()
@@ -190,12 +190,14 @@ def prices(df):
     return df_prices
 df_prices = prices(df)
 
-# function for tips
+# function for tips : we don't know who are the tripadvised customers, so we randomly select 8% of the customers that
+##will pay a tip
 def tips(df):
-    df_tips= df[df.RET == 1]
-    df_tips['TIPS'] = (np.random.randint(0,11,size=len(df_tips)))
-    df_tips = df_tips[['CUSTOMER','TIPS']]
-    df_tips = df_tips.drop_duplicates( subset=['CUSTOMER']) # CAREFUUL: WE MAKE THE ASSUMPTION THAT EACH RETURNER ALWAYS GIVES THE SAME TIPS
+    df_tips = df.sample(frac=.08)
+    df_tips['TIPS'] = (np.random.randint(0, 11, size=len(df_tips)))
+    df_tips = df_tips[['CUSTOMER', 'TIPS']]
+    df_tips['TIPS'] = df_tips['TIPS'].astype(int)
+    df_tips = df_tips.drop_duplicates(subset=['CUSTOMER'])
     return df_tips
 
 df_tips=tips(df)
@@ -204,7 +206,6 @@ df_tips=tips(df)
 def total(df_prices):
     df_prices = pd.merge(df_prices, df_tips, how='left', on='CUSTOMER')
     df_prices['TIPS'] = df_prices['TIPS'].fillna(0)
-    df_prices['TIPS'] = df_prices['TIPS'].astype(int)
     return df_prices
 
 df_prices = total(df_prices)
