@@ -144,3 +144,60 @@ plt.title('Aggregated turnover per day by customer type')
 #
 # mean_turn_day= (mean_day['TURNOVER']).mean() #mean turnover per day is 773$
 # mean_tip_day= (mean_day['TIPS']).mean() #mean tips per day is $
+
+## *********************************************************************************************************************
+## Part VI: Comparison with given data *********************************************************************************
+## *********************************************************************************************************************
+
+# load dataframe
+importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
+df = pd.read_csv(importpath, sep=";")
+
+# Data cleaning
+def Cleandata(dataframe):  # function serves to show dataframe without objects but human-readable data
+    dataframe['DATETIME'] = pd.to_datetime(dataframe['TIME'])
+    dataframe['YEAR'] = dataframe.DATETIME.dt.year
+    dataframe['WEEKDAY'] = dataframe.DATETIME.dt.day_name()
+    dataframe['WEEKDAY'] = dataframe.DATETIME.dt.day_name()
+    dataframe['TIME'] = dataframe.DATETIME.dt.time
+    dataframe['DATE'] = dataframe.DATETIME.dt.date
+    dataframe['FOOD'] = dataframe['FOOD'].fillna('nothing')
+    return dataframe
+
+df = Cleandata(df)
+
+# Assign price to each item
+prices_drinks = {'DRINKS': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water'],
+          'PRICE_DRINKS': [3, 4, 5, 3, 3, 2]}
+prices_drinks = pd.DataFrame(prices_drinks)
+
+prices_food= {'FOOD': ['cookie', 'muffin', 'pie', 'sandwich', 'nothing'],
+          'PRICE_FOOD': [2, 3, 3, 2, 0]}
+prices_food = pd.DataFrame(prices_food)
+
+# function for turnover
+def prices(df):
+    df_prices = pd.merge(df,prices_drinks, how='left', on='DRINKS')
+    df_prices = pd.merge(df_prices, prices_food, how='left', on='FOOD')
+    df_prices['TURNOVER']=df_prices['PRICE_FOOD']+df_prices['PRICE_DRINKS']
+    return df_prices
+df_prices = prices(df)
+
+# function for tips
+def tips(df):
+    df_tips= df[df.RET == 1]
+    df_tips['TIPS'] = (np.random.randint(0,11,size=len(df_tips)))
+    df_tips = df_tips[['CUSTOMER','TIPS']]
+    df_tips = df_tips.drop_duplicates( subset=['CUSTOMER']) # CAREFUUL: WE MAKE THE ASSUMPTION THAT EACH RETURNER ALWAYS GIVES THE SAME TIPS
+    return df_tips
+
+df_tips=tips(df)
+
+# function for all prices
+def total(df_prices):
+    df_prices = pd.merge(df_prices, df_tips, how='left', on='CUSTOMER')
+    df_prices['TIPS'] = df_prices['TIPS'].fillna(0)
+    df_prices['TIPS'] = df_prices['TIPS'].astype(int)
+    return df_prices
+
+df_prices = total(df_prices)
