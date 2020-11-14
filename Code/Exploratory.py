@@ -52,22 +52,27 @@ print(df.CUSTOMER.count())
 print(df.CUSTOMER.nunique())
 
 # 2.2) Create plots to illustrate the data
-# -- Count number of each drinks sold over the 5 years span
+# -- Count number of each drinks and food sold over the 5 years span
+plt.figure(figsize=(12,7))
+plt.title('Number of each drinks and food sold over 5 years')
 plt.bar(df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).DRINKS,
         df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
 plt.xticks(rotation=45)
-plt.show()
 
-# -- Count number of each food sold over the 5 years span
 plt.bar(df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).FOOD,
         df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
 plt.xticks(rotation=45)
 plt.show()
 
 # -- Graph for food and drinks depending on the week day
-df.groupby(['WEEKDAY', 'DRINKS']).count()['YEAR'].unstack().plot.bar()
+df.groupby(['WEEKDAY', 'DRINKS']).count()['YEAR'].unstack().plot.bar(figsize=(12,7))
+plt.title('Drinks bought by day of the week')
+plt.xticks(rotation=45)
 plt.show()
-df.groupby(['WEEKDAY', 'FOOD']).count()['YEAR'].unstack().plot.bar()
+
+df.groupby(['WEEKDAY', 'FOOD']).count()['YEAR'].unstack().plot.bar(figsize=(12,7))
+plt.title('Food bought by day of the week')
+plt.xticks(rotation=45)
 plt.show()
 
 ## *********************************************************************************************************************
@@ -102,12 +107,15 @@ dfpropfood = dfprob[['FOOD_cookie', 'FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', '
 
 
 # 3.2) Graphics on the probabilities of buying different items depending on the time of the day
-dfpropdrink.plot.area()
+dfpropdrink.plot.area(figsize=(10,6))
+plt.legend(bbox_to_anchor=(0.77, 0.85), loc="center left", borderaxespad=0)
+plt.title('Probabilities of buying different drinks over the day')
 plt.show()
 
-dfpropfood.plot.area()
+dfpropfood.plot.area(figsize=(10,6))
+plt.legend(bbox_to_anchor=(0.77, 0.85), loc="center left", borderaxespad=0)
+plt.title('Probabilities of buying different food over the day')
 plt.show()
-
 
 ## *********************************************************************************************************************
 ## IV: Add prices for later comparison *********************************************************************************
@@ -161,7 +169,7 @@ coffee_bar_prices = total(df_prices)
 ## *********************************************************************************************************************
 ## V: Export Data ******************************************************************************************************
 ## *********************************************************************************************************************
-# Export the databases contadatabases that will be used later
+# Export the databases that will be used later
 
 dfprob.to_csv(exportpath_probs, sep=";", index=False)
 coffee_bar_prices.to_csv(exportpath_data, sep=";", index=False)
