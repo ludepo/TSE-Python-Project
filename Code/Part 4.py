@@ -42,6 +42,7 @@ prob_returners = prob_returners.reset_index()
 
 # -- Graph of returning customers over time
 prob_returners[['TIME', 'prob']].plot('TIME', figsize=(15, 8))
+plt.show()
 
 
 # 2.3) Probability of having a onetimer or a returning customer at a given time
@@ -58,6 +59,7 @@ time = time(df)
 # -- Graphic for probability of having a returner or a onetimer
 ax = time.plot()
 ax.legend(["One time customers", "Returners"])
+plt.show()
 
 
 # 2.4) How does this impact their buying history?
@@ -80,6 +82,7 @@ barWidth = 0.3
 r1 = np.arange(len(list_onet))
 r2 = [x + barWidth for x in r1]
 
+plt.figure()
 plt.bar(r1, list_onet, width=barWidth, color='blue', edgecolor='black', capsize=7, label='onetimers')
 plt.bar(r2, list_ret, width=barWidth, color='cyan', edgecolor='black', capsize=7, label='returners')
 plt.xticks([r + barWidth for r in range(len(list_onet))],
