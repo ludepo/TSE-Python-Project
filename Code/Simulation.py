@@ -160,5 +160,30 @@ plt.legend(frameon=False, loc='center right')
 plt.xlabel('Hour of the day')
 plt.ylabel('Values in €')
 plt.title('Average income during day')
-plt.savefig('./Results/MeanIncomeDay.png')
+plt.savefig('./Results/MeanIncomeDayOriginalData.png')
+plt.show()
+
+# -- aggregated income by types per day
+# create function to aggregate data by type per day: in the given dataset we only identify returners ans onetimers
+def aggregate(dataframe):
+    data = dataframe.copy(deep=True)
+    data = data.groupby(by=['DATE', 'RET']).sum().reset_index()
+    data['TOTAL'] = data['TURNOVER'] + data['TIPS']
+    data = data.pivot(index="DATE", columns="RET", values="TOTAL")
+    data = data.rename(columns={data.columns[0]: "onetimer", data.columns[1]: "returner"})
+    return data
+
+
+by_type = aggregate(df)
+
+plt.figure(figsize=(12, 7))
+plt.stackplot(by_type.index, by_type['onetimer'], by_type['returner'],
+              labels=['Onetimer', 'Returner'])
+plt.legend(bbox_to_anchor=(0.85, 0.95), loc="center left", borderaxespad=0)
+plt.ylabel('Value in €')
+plt.xlabel('Date')
+plt.xticks(by_type.index[::100], by_type.index[::100])
+plt.title('Aggregated turnover per day by customer type')
+plt.xticks(rotation=45)
+plt.savefig('./Results/IncomeDaySimOriginalData.png')
 plt.show()
