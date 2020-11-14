@@ -9,7 +9,7 @@ import os
 ## *********************************************************************************************************************
 
 # import and export path
-importpath = os.path.abspath("./Results/dfprobs.csv")
+import_dfprob = os.path.abspath("./Results/dfprobs.csv")
 exportpath = os.path.abspath("./Results/transactionsAll.csv")
 
 # define path where pickle file of full simulation should be saved/ loaded from
@@ -31,20 +31,18 @@ items = [item("coffee", 3, "drink"),
          item("sandwich", 2, "food"),
          item("nothing", 0, "food")]
 
-# # print the items with their prices
-# for i in items:
-#     print("Delicious %s, just %s€" %(i.name, i.price))
-
-
 # load dataframe with probabilities obtained from Exploratory.py
-dfprob = pd.read_csv(importpath, sep=";")
+dfprob = pd.read_csv(import_dfprob, sep=";")
 dfprob.index = dfprob['ID']
 dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
 dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
 # create list of returning customers
-ReturningCust = [Returner() for i in range(66)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
-ReturningCust.extend([Hipster() for i in range(33)])  # prob = 1/3 for being hipster
+ReturningCust = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
+ReturningCust.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
+
+
+
 
 ## *********************************************************************************************************************
 ## Part II: Simulation                           ***********************************************************************
@@ -88,6 +86,9 @@ elif answer == "load":
 else:
     print("Either 'run' or 'load' needs to be specified!")
 
+
+
+
 ## *********************************************************************************************************************
 ## Part III: Visualize and discuss simulation    ***********************************************************************
 ## *********************************************************************************************************************
@@ -107,7 +108,7 @@ print("The average budget left for a normal returning customer was %s€ and for
       %(round(sum(budgets[:65])/len(budgets[:65])), round(sum(budgets[65:])/len(budgets[65:]))))
 
 # -- average income during day
-trans_mean_day = transactionsFourMonths.groupby(by='TIME').mean().reset_index()
+trans_mean_day = transactions.groupby(by='TIME').mean().reset_index()
 
 plt.figure()
 plt.plot(trans_mean_day.TIME, trans_mean_day.TURNOVER, label='Turnover mean')
@@ -119,11 +120,16 @@ plt.ylabel('Values in €')
 plt.title('Average income during day')
 
 
-# -- aggregated income by types
+# -- aggregated income by types per day
+# create function to aggregate data by type per day
+def sumtype(dataframe):
+    data = dataframe.copy(deep=True)
+    data = data.groupby(by=['DATE', 'CUSTOMER_TYPE']).sum().reset_index()
+    data['TOTAL'] = data['TURNOVER'] + data['TIPS']
+    data = data.pivot(index="DATE", columns="CUSTOMER_TYPE", values="TOTAL")
+    return data
 
-trans_sum_type = transactionsFourMonths.groupby(by=['DATE', 'CUSTOMER_TYPE']).sum().reset_index()
-trans_sum_type['TOTAL'] = trans_sum_type['TURNOVER'] + trans_sum_type['TIPS']
-trans_sum_type = trans_sum_type.pivot(index="DATE", columns="CUSTOMER_TYPE", values="TOTAL")
+trans_sum_type = sumtype(transactionsFourMonths)
 
 plt.figure()
 plt.stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
@@ -135,14 +141,6 @@ plt.xlabel('Date')
 plt.title('Aggregated turnover per day by customer type')
 
 
-
-#-- average income by type over years
-
-#average income by day
-mean_day=transactionsFourMonths.groupby('DATE').sum().reset_index()
-
-mean_turn_day= (mean_day['TURNOVER']).mean() #mean turnover per day is 773$
-mean_tip_day= (mean_day['TIPS']).mean() #mean tips per day is $
 
 
 ## *********************************************************************************************************************
