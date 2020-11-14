@@ -62,6 +62,10 @@ prob_returners = prob_returners.reset_index()
 
 # -- Graph of returning customers over time
 prob_returners[['TIME', 'prob']].plot('TIME', figsize=(15, 8))
+plt.xlabel('Time')
+plt.ylabel('Prob')
+plt.title('Probability of Customer being Returner throughout day')
+plt.savefig('./Results/CustomerReturnerProb.png')
 plt.show()
 
 
@@ -79,6 +83,10 @@ time = time(df)
 # -- Graphic for probability of having a returner or a onetimer
 ax = time.plot()
 ax.legend(["One time customers", "Returners"])
+plt.xlabel('Time slot')
+plt.ylabel('Probability')
+plt.title('Probability of type of customer')
+plt.savefig('./Results/CustomerTypeProb.png')
 plt.show()
 
 
@@ -111,6 +119,7 @@ plt.xticks([r + barWidth for r in range(len(list_onet))],
 plt.ylabel('prob')
 plt.xticks(rotation=45)
 plt.legend()
+plt.savefig('./Results/OneTimers_Returners_comparison.png')
 plt.show()
 
 
@@ -128,38 +137,41 @@ returners = divide(df, 1)
 onetimers = divide(df, 0)
 
 # -- Graphs for drinks
-fig1, ax = plt.subplots(2, sharex='col', sharey='row')
+fig1, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
 plt.title('Comparison in probabilities of buying different drinks for one time customers and returners')
 
 ax[0].stackplot(onetimers['TIME'], onetimers['DRINK_coffee'], onetimers['DRINK_water'],
                 onetimers['DRINK_frappucino'], onetimers['DRINK_milkshake'], onetimers['DRINK_soda'],
                 onetimers['DRINK_tea'],
                 labels=['Coffee', 'Water', 'Frappucino', 'Milkshake', 'Soda', 'Tea'])
-ax[0].set(title='Choice of drinks for one time customers', ylabel='%')
+ax[0].set(title='Choice of drinks for one time customers', ylabel='Probability in %')
 
 ax[1].stackplot(returners['TIME'], returners['DRINK_coffee'], returners['DRINK_water'],
                 returners['DRINK_frappucino'], returners['DRINK_milkshake'], returners['DRINK_soda'],
                 returners['DRINK_tea'],
                 labels=['Coffee', 'Water', 'Frappucino', 'Milkshake', 'Soda', 'Tea'])
-ax[1].set(title='Choice of drinks for returners', ylabel='%')
+ax[1].set(title='Choice of drinks for returners', ylabel='Probability in %', xlabel='Time')
 plt.xticks(returners['TIME'][::30], returners['TIME'][::30])
 plt.legend(bbox_to_anchor=(0.85, 1), loc="center left", borderaxespad=0)
+plt.savefig('./Results/DrinkProbs.png')
+plt.show()
 
 # -- Graphs for food
-fig2, ax = plt.subplots(2, sharex='col', sharey='row')
+fig2, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
 plt.title('Comparison in probabilities of buying different foods for one time customers and returners')
 ax[0].stackplot(onetimers['TIME'], onetimers['FOOD_cookie'], onetimers['FOOD_muffin'],
                 onetimers['FOOD_nothing'], onetimers['FOOD_pie'], onetimers['FOOD_sandwich'],
                 labels=['Coffee', 'Water', 'Frappucino', 'Milkshake', 'Soda', 'Tea'])
-ax[0].set(title='Choice of food for one time customers', ylabel='%')
+ax[0].set(title='Choice of food for one time customers', ylabel='Probability in %')
 
 ax[1].stackplot(returners['TIME'], returners['FOOD_cookie'], returners['FOOD_muffin'],
                 returners['FOOD_nothing'], returners['FOOD_pie'], returners['FOOD_sandwich'],
                 labels=['Coffee', 'Water', 'Frappucino', 'Milkshake', 'Soda', 'Tea'])
-ax[1].set(title='Choice of food for returners', ylabel='%')
+ax[1].set(title='Choice of food for returners', ylabel='Probability in %', xlabel='Time')
 plt.xticks(returners['TIME'][::30], returners['TIME'][::30])
 plt.legend(bbox_to_anchor=(0.85, 1), loc="center left", borderaxespad=0)
-
+plt.savefig('./Results/FoodProbs.png')
+plt.show()
 
 
 
@@ -247,7 +259,7 @@ trans_sum_type_fifty = sumtype(transactions_fifty)
 
 
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row')
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
 plt.title('Aggregated turnover per day by customer type')
 
 ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
@@ -261,8 +273,8 @@ ax[1].stackplot(trans_sum_type_fifty.index,  trans_sum_type_fifty['tripadvisor_o
                 trans_sum_type_fifty['normal_returning'],
                 labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 ax[1].set(title='Changed simulation (returners=50)', ylabel='Value in €', xlabel='Date')
-
-
+plt.savefig('./Results/FiftySim.png')
+plt.show()
 
 
 
@@ -342,7 +354,7 @@ trans_sum_type = sumtype(transactions)
 trans_sum_type_inflat = sumtype(transactions_inflat)
 
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row')
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
 plt.title('Aggregated turnover per day by customer type')
 
 ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
@@ -356,6 +368,8 @@ ax[1].stackplot(trans_sum_type_inflat.index,  trans_sum_type_inflat['tripadvisor
                 trans_sum_type_inflat['normal_returning'],
                 labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 ax[1].set(title='Changed simulation (prices increase 20% in 2018)', ylabel='Value in €', xlabel='Date')
+plt.savefig('./Results/InflatSim.png')
+plt.show()
 
 
 # in order to not have the inflation in the following simulations, we will re-run the standard versions of the functions
@@ -439,7 +453,7 @@ trans_sum_type = sumtype(transactions)
 trans_sum_type_budget = sumtype(transactions_budget)
 
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row')
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
 plt.title('Aggregated turnover per day by customer type')
 
 ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
@@ -453,7 +467,8 @@ ax[1].stackplot(trans_sum_type_budget.index,  trans_sum_type_budget['tripadvisor
                 trans_sum_type_budget['hipster_returning'],
                 labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 ax[1].set(title='Changed simulation (Hipster budget 40€)', ylabel='Value in €', xlabel='Date')
-
+plt.savefig('./Results/BudgetSim.png')
+plt.show()
 
 
 ## *********************************************************************************************************************
@@ -539,4 +554,6 @@ ax[1].stackplot(trans_sum_type_lottery.index,  trans_sum_type_lottery['tripadvis
                 labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 ax[1].set(title='Changed simulation (no change in visit frequency depending on other returners)',
           ylabel='Value in €', xlabel='Date')
+plt.savefig('./Results/LotterySim.png')
+plt.show()
 

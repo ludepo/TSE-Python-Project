@@ -62,17 +62,20 @@ plt.xticks(rotation=45)
 plt.bar(df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).FOOD,
         df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
 plt.xticks(rotation=45)
+plt.savefig('./Results/FoodDrinksSold_Bar.png')
 plt.show()
 
 # -- Graph for food and drinks depending on the week day
 df.groupby(['WEEKDAY', 'DRINKS']).count()['YEAR'].unstack().plot.bar(figsize=(12,7))
 plt.title('Drinks bought by day of the week')
 plt.xticks(rotation=45)
+plt.savefig('./Results/DrinksDay_Bar.png')
 plt.show()
 
 df.groupby(['WEEKDAY', 'FOOD']).count()['YEAR'].unstack().plot.bar(figsize=(12,7))
 plt.title('Food bought by day of the week')
 plt.xticks(rotation=45)
+plt.savefig('./Results/FoodDay_Bar.png')
 plt.show()
 
 ## *********************************************************************************************************************
@@ -110,11 +113,13 @@ dfpropfood = dfprob[['FOOD_cookie', 'FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', '
 dfpropdrink.plot.area(figsize=(10,6))
 plt.legend(bbox_to_anchor=(0.77, 0.85), loc="center left", borderaxespad=0)
 plt.title('Probabilities of buying different drinks over the day')
+plt.savefig('./Results/DrinksProb_initial.png')
 plt.show()
 
 dfpropfood.plot.area(figsize=(10,6))
 plt.legend(bbox_to_anchor=(0.77, 0.85), loc="center left", borderaxespad=0)
 plt.title('Probabilities of buying different food over the day')
+plt.savefig('./Results/FoodProb_initial.png')
 plt.show()
 
 ## *********************************************************************************************************************

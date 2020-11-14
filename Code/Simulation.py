@@ -118,7 +118,8 @@ plt.legend(frameon=False, loc='center right')
 plt.xlabel('Hour of the day')
 plt.ylabel('Values in €')
 plt.title('Average income during day')
-
+plt.savefig('./Results/MeanIncomeDay.png')
+plt.show()
 
 
 # -- aggregated income by types per day
@@ -140,7 +141,8 @@ plt.legend(bbox_to_anchor=(0.01, .925, .98, 1.5), loc='lower left', mode="expand
 plt.ylabel('Value in €')
 plt.xlabel('Date')
 plt.title('Aggregated turnover per day by customer type')
-
+plt.savefig('./Results/IncomeDaySim.png')
+plt.show()
 
 
 
