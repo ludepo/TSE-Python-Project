@@ -28,6 +28,13 @@ PIKreturn_budget = "./Data/ReturningCust_budget.dat"
 PIKdata_lottery = "./Data/transactionsDF_lottery.dat"
 PIKreturn_lottery = "./Data/ReturningCust_lottery.dat"
 
+# load given dataset
+df = pd.read_csv(importpath, sep=";")
+
+# load full simulation pickle file for comparison
+transactions = pickle.load(open(PIKdata, "rb"))
+ReturningCust = pickle.load(open(PIKreturn, "rb"))
+
 ## *********************************************************************************************************************
 ## I: Show some buying histories of returning customers for your simulations *******************************************
 ## *********************************************************************************************************************
@@ -38,13 +45,9 @@ ReturningCust[999].purchase_history()
 
 
 
-
 ## *********************************************************************************************************************
 ## II: Analysis of returning customers of the given dataset ************************************************************
 ## *********************************************************************************************************************
-
-# load given dataset
-df = pd.read_csv(importpath, sep=";")
 
 ## 2.1) How many returning customers?
 print(df.CUSTOMER.nunique())  # This is the number of purchases made by returners
@@ -182,9 +185,6 @@ dfprob.index = dfprob['ID']
 dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
 dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
-# import pickle file of original simulation for comparison
-transactions = pickle.load(open(PIKdata4month, "rb")) # TODO erase 4month
-
 
 
 
@@ -201,9 +201,9 @@ ReturningCust_fifty.extend([Hipster() for i in range(16)])  # prob = 1/3 for bei
 
 # again, define whether simulation should be run or pickle file should be loaded
 # Input mask to specify option
-answer = input("Variation I: \n Do you want to run full simulation (approx. 40min) or load pickle files of full"
-               " simulation and run \n representative (four month) simulation instead to see that code works? If "
-               "run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
+answer = input("Variation I (fifty returners): \n Do you want to run full simulation (approx. 40min) or load pickle "
+               "files of full simulation and run \n representative (four month) simulation instead to see that "
+               "code works? If run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
 
 # If full simulation shall be run, this section of code is executed
 if answer == "run":
@@ -307,9 +307,9 @@ ReturningCust_inflat.extend([Hipster() for i in range(33)])  # prob = 1/3 for be
 
 # again, define whether simulation should be run or pickle file should be loaded
 # Input mask to specify option
-answer = input("Variation I: \n Do you want to run full simulation (approx. 40min) or load pickle files of full"
-               " simulation and run \n representative (four month) simulation instead to see that code works? If "
-               "run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
+answer = input("Variation II (prices change): \n Do you want to run full simulation (approx. 40min) or load pickle "
+               "files of full simulation and run \n representative (four month) simulation instead to see that "
+               "code works? If run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
 
 # If full simulation shall be run, this section of code is executed
 if answer == "run":
@@ -405,9 +405,9 @@ for i in ReturningCust_budget:
 # now run the simulation again
 # again, define whether simulation should be run or pickle file should be loaded
 # Input mask to specify option
-answer = input("Variation I: \n Do you want to run full simulation (approx. 40min) or load pickle files of full"
-               " simulation and run \n representative (four month) simulation instead to see that code works? If "
-               "run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
+answer = input("Variation III (different hipster budget): \n Do you want to run full simulation (approx. 40min) or load"
+               " pickle files of full simulation and run \n representative (four month) simulation instead to see that "
+               "code works? If run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
 
 # If full simulation shall be run, this section of code is executed
 if answer == "run":
@@ -473,13 +473,13 @@ def ChooseCustomer(ReturningCust):
               ReturningCust[i].budget > 8]  # is returner solvent?
     allcust = [Customer(), Tripadvised()]  # create list for possible customers (note we do not care what Customer() or
     allcust.extend(liquid)  # Tripadvised() comes, but for Returner() and Hipster() we want to keep track
-    weights = [7, (100 - 72 - len(liquid) * (20 / len(ReturningCust)))]  # bankrupt returning customers are replaced by Tripadvised
-    weights.extend(
-        list(repeat((20 / len(ReturningCust)), len(liquid))))  # prob. of repeating returner dependen on overall nr.
-    if liquid == []:
+    weights = [0.0001, (100 - 72 - len(liquid) * (20 / len(ReturningCust)))]  # bankrupt returning customers are replaced by Tripadvised
+    weights.extend(list(repeat((20 / len(ReturningCust)), len(liquid))))  # prob. of repeating returner dependen on overall nr.
+
+    if liquid == []:  # if all returners are bankrupt
         customer = random.choices([Customer(), Tripadvised()], weights=[72, 28], k=1)  # if all returners bankrupt
 
-    else:
+    else:  # if there are still liquid returners
         customer = random.choices(allcust, weights=weights, k=1)
     return customer[0]
 
@@ -490,9 +490,9 @@ ReturningCust_lottery.extend([Hipster() for i in range(33)])  # prob = 1/3 for b
 # now run the simulation again
 # again, define whether simulation should be run or pickle file should be loaded
 # Input mask to specify option
-answer = input("Variation I: \n Do you want to run full simulation (approx. 40min) or load pickle files of full"
-               " simulation and run \n representative (four month) simulation instead to see that code works? If "
-               "run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
+answer = input("Variation IV (returner assumption): \n Do you want to run full simulation (approx. 40min) or load pickle "
+               "files of full simulation and run \n representative (four month) simulation instead to see that code "
+               "works? If run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
 
 # If full simulation shall be run, this section of code is executed
 if answer == "run":
@@ -505,7 +505,7 @@ if answer == "run":
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
     ReturningCustFourMonth_lottery = ReturningCust_lottery.copy()
-    transactionsFourMonths_lottery = SimulateRange(dfprob, ReturningCustFourMonth_lottery, items, start="2017-11-01", end="2018-02-10") #TODO change to 4 month
+    transactionsFourMonths_lottery = SimulateRange(dfprob, ReturningCustFourMonth_lottery, items, start="2016-11-01", end="2018-02-10") #TODO change to 4 month
     transactionsFourMonths_lottery = NoObjects(transactionsFourMonths_lottery)
     # get full simulation stored in pickle file
     transactions_lottery = pickle.load(open(PIKdata_lottery, "rb"))
@@ -519,10 +519,10 @@ else:
 # -- compare aggregated income by types per day
 # modify variables needed to plot
 trans_sum_type = sumtype(transactions)
-trans_sum_type_lottery = sumtype(transactionsFourMonths_lottery)
+trans_sum_type_lottery = sumtype(transactions_lottery)
 
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row')
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(15,30))
 plt.title('Aggregated turnover per day by customer type')
 
 ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
