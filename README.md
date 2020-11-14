@@ -42,39 +42,45 @@ The general 5 year simulation is called "TransactionsDF.dat". The other database
 different hypothesis that are made. 
 
 ### 3.3. Code
-The Code folder contains the four python files used to solve the project. Each file correspond to a different part of 
+The Code folder contains the four python files used to solve the project. Each file corresponds to a different part of 
 the assignment. 
 
 #### *Exploratory*
 "Exploratory.py" file responds to the first part of the assignment. With this code, we  explore the 
 "Coffeebar_2016-2020.csv" dataset in order to determine what the shop is selling and to obtain probabilities of
-customers buying each items at each time of the day. This code allows to obtain a csv dataset, "dfprobs.csv"  
+customers buying each items at each time of the day. This code allows to obtain and export a csv dataset, "dfprobs.csv" 
 with cross probabilities between time of the day and order of different items.
-The given dataset is also transformed in order to add prices and tips. This will be used for later comparisons. 
+The "Coffeebar_2016-2020.csv" dataset is also transformed in order to add prices and tips. This will be used for later 
+comparisons. 
 
 #### *Customers*
 ##### *Objects*
 In a first part, this file creates the different classes of objects that are needed in the simulation. 
 It first creates the different types of customers with given attributes and instance methods that will be used in
 the simulation. It also creates the Purchase object that assign a purchase to customers depending on the time they show
-up. Finally it creates the  class Items for food and drinks objects 
+up. Finally it creates the  class Items for food and drinks.
 
 ##### *Functions*
 In a second part, we specify the functions needed for the simulation. 
+
 The ChooseCustomer() function will allow to choose between the different type of customers, taking into account their 
-solvability. 
-The MakePurchase() function assign a purchase to the chosen customer, depending on the time of the day and on the 
+solvability.
+
+The MakePurchase() function assigns a purchase to the chosen customer, depending on the time of the day and on the 
 probabilities obtained in the first part.
+
 The SimulateRange() function will allow to obtain the final simulation by combining the chosen customer with its given 
 purchase depending on the time of the day. It is created to simulate a 5 years span but a different time range can be 
 specified in the input. 
+
 Finally, the NoObjects() function allows to convert the object stored in the dataframe to human readable data.
 
 #### *Simulation*
 Finally, the "Simulation.py" allows to obtain a 5 years span of customer based on the class and functions created 
 previously. **At this point, you will be asked to either run the simulation or instead used the pre-stored
 simulation**
-The simulation obtained is compared with the given dataset by the mean of different graphs.
+
+.The simulation obtained is compared with the given dataset by the mean of different graphs.
 
 #### *Discussion*
 Finally, this section correspond to part 4 of the assignment. We look at the datasets into more detail and make new
@@ -87,7 +93,7 @@ It analyses the 4 following assumptions:
 that bankrupt returners are replaced by tripavised customers*
 
 **Each of these hypothesis requires a new simulation. You will again have to choose between running the simulation or
-using a pre-loaded simulation**
+using a pre-stored simulation**
 
 ### Results
 The Results folder contains the datasets created for the project and the different graphs.
