@@ -11,27 +11,27 @@ from itertools import repeat
 ## *********************************************************************************************************************
 
 # define paths:
-importpath = os.path.abspath("./Results/coffeebar_prices.csv")
-import_dfprob = os.path.abspath("./Results/dfprobs.csv")
+importpath = os.path.abspath("../Results/coffeebar_prices.csv")
+import_dfprob = os.path.abspath("../Results/dfprobs.csv")
 
-exportpath_fifty = os.path.abspath("./Results/Simulation_fifty.csv")
-exportpath_inflat = os.path.abspath("./Results/Simulation_inflat.csv")
-exportpath_budget = os.path.abspath("./Results/Simulation_budget.csv")
-exportpath_lottery = os.path.abspath("./Results/Simulation_lottery.csv")
+exportpath_fifty = os.path.abspath("../Results/Simulation_fifty.csv")
+exportpath_inflat = os.path.abspath("../Results/Simulation_inflat.csv")
+exportpath_budget = os.path.abspath("../Results/Simulation_budget.csv")
+exportpath_lottery = os.path.abspath("../Results/Simulation_lottery.csv")
 
 # define paths for pickle files
-PIKdata = "./Data/transactionsDF.dat"
-PIKreturn = "./Data/ReturningCust.dat"
-PIKdata4month = "./Data/data4month.dat"
-PIKreturn4month = "./Data/Cust4month.dat"
-PIKdata_fifty = "./Data/transactionsDF_fifty.dat"
-PIKreturn_fifty = "./Data/ReturningCust_fifty.dat"
-PIKdata_inflat = "./Data/transactionsDF_inflat.dat"
-PIKreturn_inflat = "./Data/ReturningCust_inflat.dat"
-PIKdata_budget = "./Data/transactionsDF_budget.dat"
-PIKreturn_budget = "./Data/ReturningCust_budget.dat"
-PIKdata_lottery = "./Data/transactionsDF_lottery.dat"
-PIKreturn_lottery = "./Data/ReturningCust_lottery.dat"
+PIKdata = "../Data/transactionsDF.dat"
+PIKreturn = "../Data/ReturningCust.dat"
+PIKdata4month = "../Data/data4month.dat"
+PIKreturn4month = "../Data/Cust4month.dat"
+PIKdata_fifty = "../Data/transactionsDF_fifty.dat"
+PIKreturn_fifty = "../Data/ReturningCust_fifty.dat"
+PIKdata_inflat = "../Data/transactionsDF_inflat.dat"
+PIKreturn_inflat = "../Data/ReturningCust_inflat.dat"
+PIKdata_budget = "../Data/transactionsDF_budget.dat"
+PIKreturn_budget = "../Data/ReturningCust_budget.dat"
+PIKdata_lottery = "../Data/transactionsDF_lottery.dat"
+PIKreturn_lottery = "../Data/ReturningCust_lottery.dat"
 
 # load given dataset
 df = pd.read_csv(importpath, sep=";")
@@ -68,7 +68,7 @@ prob_returners[['TIME', 'prob']].plot('TIME', figsize=(15, 8))
 plt.xlabel('Time')
 plt.ylabel('Prob')
 plt.title('Probability of Customer being Returner throughout day')
-plt.savefig('./Results/CustomerReturnerProb.png')
+plt.savefig('../Results/CustomerReturnerProb.png')
 plt.show()
 
 
@@ -89,7 +89,7 @@ ax.legend(["One time customers", "Returners"])
 plt.xlabel('Time slot')
 plt.ylabel('Probability')
 plt.title('Probability of type of customer')
-plt.savefig('./Results/CustomerTypeProb.png')
+plt.savefig('../Results/CustomerTypeProb.png')
 plt.show()
 
 
@@ -122,7 +122,7 @@ plt.xticks([r + barWidth for r in range(len(list_onet))],
 plt.ylabel('prob')
 plt.xticks(rotation=45)
 plt.legend()
-plt.savefig('./Results/OneTimers_Returners_comparison.png')
+plt.savefig('../Results/OneTimers_Returners_comparison.png')
 plt.show()
 
 
@@ -156,7 +156,7 @@ ax[1].stackplot(returners['TIME'], returners['DRINK_coffee'], returners['DRINK_w
 ax[1].set(title='Choice of drinks for returners', ylabel='Probability in %', xlabel='Time')
 plt.xticks(returners['TIME'][::30], returners['TIME'][::30])
 plt.legend(bbox_to_anchor=(0.85, 1), loc="center left", borderaxespad=0)
-plt.savefig('./Results/DrinkProbs.png')
+plt.savefig('../Results/DrinkProbs.png')
 plt.show()
 
 # -- Graphs for food
@@ -173,7 +173,7 @@ ax[1].stackplot(returners['TIME'], returners['FOOD_cookie'], returners['FOOD_muf
 ax[1].set(title='Choice of food for returners', ylabel='Probability in %', xlabel='Time')
 plt.xticks(returners['TIME'][::30], returners['TIME'][::30])
 plt.legend(bbox_to_anchor=(0.85, 1), loc="center left", borderaxespad=0)
-plt.savefig('./Results/FoodProbs.png')
+plt.savefig('../Results/FoodProbs.png')
 plt.show()
 
 ########################################################################################################################
@@ -225,7 +225,7 @@ if answer == "run":
     pickle.dump(transactions_fifty, open(PIKdata_fifty, "wb"))
     pickle.dump(ReturningCust_fifty, open(PIKreturn_fifty, "wb"))
     # save simulated data as csv for completeness
-    transactions.to_csv(exportpath_fifty, sep=";", index=False)
+    transactions_fifty.to_csv(exportpath_fifty, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -272,7 +272,7 @@ ax[1].stackplot(trans_sum_type_fifty.index, trans_sum_type_fifty['tripadvisor_on
                 trans_sum_type_fifty['normal_returning'],
                 labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[1].set(title='Changed simulation (returners=50)', ylabel='Value in €', xlabel='Date')
-plt.savefig('./Results/FiftySim.png')
+plt.savefig('../Results/FiftySim.png')
 plt.show()
 
 
@@ -332,7 +332,7 @@ if answer == "run":
     pickle.dump(transactions_inflat, open(PIKdata_inflat, "wb"))
     pickle.dump(ReturningCust_inflat, open(PIKreturn_inflat, "wb"))
     # save simulated data as csv for completeness
-    transactions.to_csv(exportpath_inflat, sep=";", index=False)
+    transactions_inflat.to_csv(exportpath_inflat, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -367,7 +367,7 @@ ax[1].stackplot(trans_sum_type_inflat.index, trans_sum_type_inflat['tripadvisor_
                 trans_sum_type_inflat['normal_returning'],
                 labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[1].set(title='Changed simulation (prices increase 20% in 2018)', ylabel='Value in €', xlabel='Date')
-plt.savefig('./Results/InflatSim.png')
+plt.savefig('../Results/InflatSim.png')
 plt.show()
 
 
@@ -431,7 +431,7 @@ if answer == "run":
     pickle.dump(transactions_budget, open(PIKdata_budget, "wb"))
     pickle.dump(ReturningCust_budget, open(PIKreturn_budget, "wb"))
     # save simulated data as csv for completeness
-    transactions.to_csv(exportpath_budget, sep=";", index=False)
+    transactions_budget.to_csv(exportpath_budget, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -466,7 +466,7 @@ ax[1].stackplot(trans_sum_type_budget.index, trans_sum_type_budget['tripadvisor_
                 trans_sum_type_budget['hipster_returning'],
                 labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[1].set(title='Changed simulation (Hipster budget 40€)', ylabel='Value in €', xlabel='Date')
-plt.savefig('./Results/BudgetSim.png')
+plt.savefig('../Results/BudgetSim.png')
 plt.show()
 
 
@@ -519,7 +519,7 @@ if answer == "run":
     pickle.dump(transactions_lottery, open(PIKdata_lottery, "wb"))
     pickle.dump(ReturningCust_lottery, open(PIKreturn_lottery, "wb"))
     # save simulated data as csv for completeness
-    transactions.to_csv(exportpath_lottery, sep=";", index=False)
+    transactions_lottery.to_csv(exportpath_lottery, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -555,5 +555,5 @@ ax[1].stackplot(trans_sum_type_lottery.index, trans_sum_type_lottery['tripadviso
                 labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[1].set(title='Changed simulation (no change in visit frequency depending on other returners)',
           ylabel='Value in €', xlabel='Date')
-plt.savefig('./Results/LotterySim.png')
+plt.savefig('../Results/LotterySim.png')
 plt.show()

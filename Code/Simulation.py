@@ -9,14 +9,14 @@ import os
 ## *********************************************************************************************************************
 
 # import and export path
-import_dfprob = os.path.abspath("./Results/dfprobs.csv")
-exportpath_sim = os.path.abspath("./Results/Simulation.csv")
+import_dfprob = os.path.abspath("../Results/dfprobs.csv")
+exportpath_sim = os.path.abspath("../Results/Simulation.csv")
 
 # define path where pickle file of full simulation should be saved/ loaded from
-PIKdata = "./Data/transactionsDF.dat"
-PIKreturn = "./Data/ReturningCust.dat"
-PIKdata4month = "./Data/data4month.dat"
-PIKreturn4month = "./Data/Cust4month.dat"
+PIKdata = "../Data/transactionsDF.dat"
+PIKreturn = "../Data/ReturningCust.dat"
+PIKdata4month = "../Data/data4month.dat"
+PIKreturn4month = "../Data/Cust4month.dat"
 
 # create items that are sold in cafe: item(name, price, type)
 items = [item("coffee", 3, "drink"),
@@ -113,8 +113,8 @@ plt.xticks(trans_mean_day['TIME'][::30], trans_mean_day['TIME'][::30])
 plt.legend(frameon=False, loc='center right')
 plt.xlabel('Hour of the day')
 plt.ylabel('Values in €')
-plt.title('Average income during day')
-plt.savefig('./Results/MeanIncomeDay.png')
+plt.title('Average income during day own simulation')
+plt.savefig('../Results/MeanIncomeDay.png')
 plt.show()
 
 
@@ -137,8 +137,8 @@ plt.stackplot(trans_sum_type.index, trans_sum_type['tripadvisor_one_time'], tran
 plt.legend(bbox_to_anchor=(0.01, .925, .98, 1.5), loc='lower left', mode="expand", ncol=4, borderaxespad=0.)
 plt.ylabel('Value in €')
 plt.xlabel('Date')
-plt.title('Aggregated turnover per day by customer type')
-plt.savefig('./Results/IncomeDaySim.png')
+plt.title('Aggregated turnover per day by customer type own simulation')
+plt.savefig('../Results/IncomeDaySim.png')
 plt.show()
 
 ## *********************************************************************************************************************
@@ -146,7 +146,7 @@ plt.show()
 ## *********************************************************************************************************************
 
 # load dataframe
-importpath = os.path.abspath("./Results/coffeebar_prices.csv")
+importpath = os.path.abspath("../Results/coffeebar_prices.csv")
 df = pd.read_csv(importpath, sep=";")
 
 # -- average income during day
@@ -159,8 +159,8 @@ plt.xticks(trans_mean_day['TIME'][::30], trans_mean_day['TIME'][::30])
 plt.legend(frameon=False, loc='center right')
 plt.xlabel('Hour of the day')
 plt.ylabel('Values in €')
-plt.title('Average income during day')
-plt.savefig('./Results/MeanIncomeDayOriginalData.png')
+plt.title('Average income during day given data')
+plt.savefig('../Results/MeanIncomeDayOriginalData.png')
 plt.show()
 
 # -- aggregated income by types per day
@@ -183,7 +183,7 @@ plt.legend(bbox_to_anchor=(0.85, 0.95), loc="center left", borderaxespad=0)
 plt.ylabel('Value in €')
 plt.xlabel('Date')
 plt.xticks(by_type.index[::100], by_type.index[::100])
-plt.title('Aggregated turnover per day by customer type')
+plt.title('Aggregated turnover per day by customer type given data')
 plt.xticks(rotation=45)
-plt.savefig('./Results/IncomeDaySimOriginalData.png')
+plt.savefig('../Results/IncomeDaySimOriginalData.png')
 plt.show()
