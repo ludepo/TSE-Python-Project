@@ -2,16 +2,20 @@ import pandas as pd
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from Code.Class import ReturningCust, Tripadvised
+import pickle
+from matplotlib.pyplot import *
 
-# define paths:
-importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
+## *********************************************************************************************************************
+## 0: Define path and import data  *************************************************************************************
+## *********************************************************************************************************************
+importpath = os.path.abspath("./Results/coffeebar_prices.csv")
+
 PIKdata = "./Data/transactionsDF.dat"
 PIKreturn = "./Data/ReturningCust.dat"
 PIKdata4month = "./Data/data4month.dat"
 PIKreturn4month = "./Data/Cust4month.dat"
 
+df = pd.read_csv(importpath, sep=";")
 
 ## *********************************************************************************************************************
 ## I: Show some buying histories of returning customers for your simulations *******************************************
@@ -21,67 +25,50 @@ PIKreturn4month = "./Data/Cust4month.dat"
 ReturningCust[555].purchase_history()
 ReturningCust[999].purchase_history()
 
-
-
-
 ## *********************************************************************************************************************
 ## II: Analysis of returning customers of the given dataset ************************************************************
 ## *********************************************************************************************************************
 
-# load dataframe
-df = pd.read_csv(importpath, sep=";")
-
-# Add columns to simplify analysis
-def AddColumns(dataframe):  # function serves to add variables for easier grouping of data
-    data = dataframe.copy(deep=True)  # Make a copy so dataframe not overwritten
-    data['DATETIME'] = pd.to_datetime(data['TIME'])
-    data['YEAR'] = data.DATETIME.dt.year
-    data['WEEKDAY'] = data.DATETIME.dt.day_name()
-    data['TIME'] = data.DATETIME.dt.time
-    data['DATE'] = data.DATETIME.dt.date
-    data['FOOD'] = data['FOOD'].fillna('nothing')
-    return data
-
-df = AddColumns(df)
-
-
 ## 2.1) How many returning customers?
-print(df.CUSTOMER.nunique())  ## carefull, here we count the number of purchases made by returners
-returners = df[df['CUSTOMER'].duplicated(keep=False)]
-returners = returners.drop_duplicates(subset=['CUSTOMER'])
-print(len(returners))  ## there are 1000 customers that are returners
-
+print(df.CUSTOMER.nunique())  # This is the number of purchases made by returners
+returners = df[df.RET == 1]
+print(len(returners.drop_duplicates(subset=['CUSTOMER'])))  # There are 1000 customers that are returners
 
 ## 2.2) Do returners have specific time when they show up more?
-returners = df[df['CUSTOMER'].duplicated(keep=False)]  # dataset with observations of returners only
-returners = returners.assign(prob_returners=returners.TIME.map(returners.TIME.value_counts(normalize=True)))
-returners.drop_duplicates(keep=False)  # dataset with probabilities for returners at each time
+returners = returners[['TIME', 'RET']]
+prob_returners = returners.groupby('TIME').count()  # dataset with probabilities for returners at each time
+prob_returners['prob'] = prob_returners['RET'] / len(returners)
+prob_returners = prob_returners.reset_index()
 
 # -- Graph of returning customers over time
-returners[['TIME', 'prob_returners']].plot('TIME', figsize=(15, 8))
+prob_returners[['TIME', 'prob']].plot('TIME', figsize=(15, 8))
 
 
 # 2.3) Probability of having a onetimer or a returning customer at a given time
-def Time(df):
-    df['RET'] = (df.duplicated(keep=False, subset=['CUSTOMER'])) * 1
-    time = df.drop(['CUSTOMER', 'DRINKS', 'FOOD', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
-    time = pd.get_dummies(time, columns=["RET"], prefix=["RET"]).groupby('TIME').mean()
-    time = time.reset_index()
-    return time
+def time(dataframe):  # function to obtain a dataset with probabilities of returners and onetimers at each time
+    dataframe = dataframe.drop(['CUSTOMER', 'DRINKS', 'FOOD', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
+    dataframe = pd.get_dummies(dataframe, columns=["RET"], prefix=["RET"]).groupby('TIME').mean()
+    dataframe = dataframe.reset_index()
+    dataframe = dataframe[['TIME', 'RET_0', 'RET_1']]
+    return dataframe
 
-time=Time(df)
+
+time = time(df)
 
 # -- Graphic for probability of having a returner or a onetimer
-time[['TIME', 'RET_1', 'RET_0']].plot('TIME', figsize=(15, 8))
+ax = time.plot()
+ax.legend(["One time customers", "Returners"])
 
 
 # 2.4) How does this impact their buying history?
-def buy(df):
-    buy = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]).groupby('RET').mean()
-    buy = buy.transpose()
-    buy = buy.drop('YEAR')
-    buy = buy.rename(columns={buy.columns[0]: "onetimer", buy.columns[1]: "returner"})
-    return buy
+def buy(dataframe):  # function to obtain dataset with probabilities of buying the different items for each type
+    dataframe = dataframe.drop(['PRICE_DRINKS', 'PRICE_FOOD', 'TURNOVER', 'TIPS', 'YEAR'], axis=1)
+    dataframe = pd.get_dummies(dataframe, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]).groupby('RET').mean()
+    dataframe = dataframe.transpose()
+    # dataframe = dataframe.drop('YEAR')
+    dataframe = dataframe.rename(columns={dataframe.columns[0]: "onetimer", dataframe.columns[1]: "returner"})
+    return dataframe
+
 
 buy = buy(df)
 
@@ -105,33 +92,50 @@ plt.show()
 
 
 # 2.5) Do you see correlations between what returning customers buy and one-timers?
-#function to create dataset with probabilities of buying different items depending on type
-def divide(df,x):
-    df['RET'] = (df.duplicated(keep=False, subset=['CUSTOMER'])) * 1
-    df = df[df['RET'] == x]
-    df = df.drop(['CUSTOMER', 'DATETIME', 'WEEKDAY', 'YEAR', 'DATE', 'RET'], axis=1)
-    df = pd.get_dummies(df, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"])
-    df = df.groupby('TIME').mean()
-    df = df.reset_index()
-    return df
+def divide(dataframe, x):  # function to create dataset with probabilities of buying different items depending on type
+    dataframe = dataframe[dataframe['RET'] == x]
+    dataframe = dataframe.drop(['CUSTOMER', 'DATETIME', 'WEEKDAY', 'YEAR', 'DATE', 'RET'], axis=1)
+    dataframe = pd.get_dummies(dataframe, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"])
+    dataframe = dataframe.groupby('TIME').mean()
+    dataframe = dataframe.reset_index()
+    return dataframe
 
-returners = divide(df,1)
-onetimers = divide(df,0)
+
+returners = divide(df, 1)
+onetimers = divide(df, 0)
 
 # -- Graphs for drinks
-onetimers[['TIME', 'DRINK_coffee','DRINK_water', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_soda', 'DRINK_tea']].plot('TIME', figsize=(15, 8))
-returners[['TIME', 'DRINK_coffee','DRINK_water', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_soda', 'DRINK_tea']].plot('TIME', figsize=(15, 8))
+fig1, ax = plt.subplots(2, sharex='col', sharey='row')
+plt.title('Comparison in probabilities of buying different drinks for one time customers and returners')
+
+ax[0].stackplot(onetimers['TIME'], onetimers['DRINK_coffee'], onetimers['DRINK_water'],
+                onetimers['DRINK_frappucino'], onetimers['DRINK_milkshake'], onetimers['DRINK_soda'],
+                onetimers['DRINK_tea'],
+                labels=['Coffee', 'Water', 'Frappucino', 'Milkshake', 'Soda', 'Tea'])
+ax[0].set(title='Choice of drinks for one time customers', ylabel='%')
+
+ax[1].stackplot(returners['TIME'], returners['DRINK_coffee'], returners['DRINK_water'],
+                returners['DRINK_frappucino'], returners['DRINK_milkshake'], returners['DRINK_soda'],
+                returners['DRINK_tea'],
+                labels=['Coffee', 'Water', 'Frappucino', 'Milkshake', 'Soda', 'Tea'])
+ax[1].set(title='Choice of drinks for returners', ylabel='%')
+plt.xticks(returners['TIME'][::30], returners['TIME'][::30])
+plt.legend(bbox_to_anchor=(0.85, 1), loc="center left", borderaxespad=0)
 
 # -- Graphs for food
-onetimers[['TIME', 'FOOD_cookie','FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']].plot('TIME', figsize=(15, 8))
-returners[['TIME', 'FOOD_cookie','FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']].plot('TIME', figsize=(15, 8))
+fig2, ax = plt.subplots(2, sharex='col', sharey='row')
+plt.title('Comparison in probabilities of buying different foods for one time customers and returners')
+ax[0].stackplot(onetimers['TIME'], onetimers['FOOD_cookie'], onetimers['FOOD_muffin'],
+                onetimers['FOOD_nothing'], onetimers['FOOD_pie'], onetimers['FOOD_sandwich'],
+                labels=['Coffee', 'Water', 'Frappucino', 'Milkshake', 'Soda', 'Tea'])
+ax[0].set(title='Choice of food for one time customers', ylabel='%')
 
-
-# 2.6) Comparison of returners of our generated dataset
-transactions = pickle.load(open(PIK, "rb"))
-
-
-
+ax[1].stackplot(returners['TIME'], returners['FOOD_cookie'], returners['FOOD_muffin'],
+                returners['FOOD_nothing'], returners['FOOD_pie'], returners['FOOD_sandwich'],
+                labels=['Coffee', 'Water', 'Frappucino', 'Milkshake', 'Soda', 'Tea'])
+ax[1].set(title='Choice of food for returners', ylabel='%')
+plt.xticks(returners['TIME'][::30], returners['TIME'][::30])
+plt.legend(bbox_to_anchor=(0.85, 1), loc="center left", borderaxespad=0)
 
 ## *********************************************************************************************************************
 ## III: What would happen if we lower the returning customers to 50 and simulate the same period? **********************
@@ -145,6 +149,7 @@ transactions = pickle.load(open(PIK, "rb"))
 transactionsFourMonths = pickle.load(open(PIKdata, "rb"))
 ReturningCustFourMonths = pickle.load(open(PIKreturn, "rb"))
 
+
 ## *********************************************************************************************************************
 ## IV: The prices change from the beginning of 2018 and go up by 20%  **************************************************
 ## *********************************************************************************************************************
@@ -153,14 +158,15 @@ ReturningCustFourMonths = pickle.load(open(PIKreturn, "rb"))
 def MakePurchase(customer, hour, minute, probabilities, date):  # additional input "date" required
     purchase = Purchase(customer, hour, minute, probabilities)
     if (date.astype('datetime64[D]') > np.datetime64("2017-12-31").astype('datetime64[D]')):
-        purchase.value = purchase.value * 1.2 # if date is after 2017, value of purchase increased 20%
+        purchase.value = purchase.value * 1.2  # if date is after 2017, value of purchase increased 20%
     else:
-        None # if date is before 2018, nothing changes
+        None  # if date is before 2018, nothing changes
     customer.money_spent += purchase.payment
     customer.budget -= purchase.payment
     customer.purchases.append(purchase)
 
     return purchase
+
 
 # the SimulateRange() function needs to be modified too since MakePurchase() now requires date input
 def SimulateRange(probabilities, start="2016-01-01", end="2020-12-31"):
@@ -177,7 +183,7 @@ def SimulateRange(probabilities, start="2016-01-01", end="2020-12-31"):
                                                    transactions['HOUR'].values[i],
                                                    transactions['MINUTE'].values[i],
                                                    probabilities,
-                                                   transactions['DATETIME'].values[i]) # date passed to function
+                                                   transactions['DATETIME'].values[i])  # date passed to function
     return transactions
 
 
@@ -185,8 +191,8 @@ def SimulateRange(probabilities, start="2016-01-01", end="2020-12-31"):
 transactions_inflat = SimulateRange(dfprob, start="2017-11-01", end="2018-02-10")
 transactions_inflat = NoObjects(transactions_inflat)
 
-# TODO: compare both simulations with comparison graph
 
+# TODO: compare both simulations with comparison graph
 
 
 ## *********************************************************************************************************************
