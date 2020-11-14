@@ -10,7 +10,7 @@ import os
 
 # import and export path
 import_dfprob = os.path.abspath("./Results/dfprobs.csv")
-exportpath = os.path.abspath("./Results/transactionsAll.csv")
+exportpath_sim = os.path.abspath("./Results/Simulation.csv")
 
 # define path where pickle file of full simulation should be saved/ loaded from
 PIKdata = "./Data/transactionsDF.dat"
@@ -38,8 +38,7 @@ dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
 dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
 # create list of returning customers
-ReturningCust = [Returner() for i in
-                 range(667)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
+ReturningCust = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
 ReturningCust.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
 
 ## *********************************************************************************************************************
@@ -65,6 +64,8 @@ if answer == "run":
     # save simulated data as pickle in order to access objects later again
     pickle.dump(transactions, open(PIKdata, "wb"))
     pickle.dump(ReturningCust, open(PIKreturn, "wb"))
+    # save simulated data as csv for completeness
+    transactions.to_csv(exportpath_sim, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -141,7 +142,7 @@ plt.savefig('./Results/IncomeDaySim.png')
 plt.show()
 
 ## *********************************************************************************************************************
-## Part VI: Comparison with given data *********************************************************************************
+## Part IV: Comparison with given data *********************************************************************************
 ## *********************************************************************************************************************
 
 # load dataframe
