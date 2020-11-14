@@ -14,6 +14,11 @@ from itertools import repeat
 importpath = os.path.abspath("./Results/coffeebar_prices.csv")
 import_dfprob = os.path.abspath("./Results/dfprobs.csv")
 
+exportpath_fifty = os.path.abspath("./Results/Simulation_fifty.csv")
+exportpath_inflat = os.path.abspath("./Results/Simulation_inflat.csv")
+exportpath_budget = os.path.abspath("./Results/Simulation_budget.csv")
+exportpath_lottery = os.path.abspath("./Results/Simulation_lottery.csv")
+
 # define paths for pickle files
 PIKdata = "./Data/transactionsDF.dat"
 PIKreturn = "./Data/ReturningCust.dat"
@@ -226,6 +231,8 @@ if answer == "run":
     # save simulated data as pickle in order to access objects later again
     pickle.dump(transactions_fifty, open(PIKdata_fifty, "wb"))
     pickle.dump(ReturningCust_fifty, open(PIKreturn_fifty, "wb"))
+    # save simulated data as csv for completeness
+    transactions.to_csv(exportpath_fifty, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -332,6 +339,8 @@ if answer == "run":
     # save simulated data as pickle in order to access objects later again
     pickle.dump(transactions_inflat, open(PIKdata_inflat, "wb"))
     pickle.dump(ReturningCust_inflat, open(PIKreturn_inflat, "wb"))
+    # save simulated data as csv for completeness
+    transactions.to_csv(exportpath_inflat, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -431,6 +440,8 @@ if answer == "run":
     # save simulated data as pickle in order to access objects later again
     pickle.dump(transactions_budget, open(PIKdata_budget, "wb"))
     pickle.dump(ReturningCust_budget, open(PIKreturn_budget, "wb"))
+    # save simulated data as csv for completeness
+    transactions.to_csv(exportpath_budget, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -517,6 +528,8 @@ if answer == "run":
     # save simulated data as pickle in order to access objects later again
     pickle.dump(transactions_lottery, open(PIKdata_lottery, "wb"))
     pickle.dump(ReturningCust_lottery, open(PIKreturn_lottery, "wb"))
+    # save simulated data as csv for completeness
+    transactions.to_csv(exportpath_lottery, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":

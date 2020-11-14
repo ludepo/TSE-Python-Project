@@ -66,6 +66,9 @@ plt.savefig('./Results/FoodDrinksSold_Bar.png')
 plt.show()
 
 # -- Graph for food and drinks depending on the week day
+df['WEEKDAY'] = pd.Categorical(df['WEEKDAY'],
+                               categories=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],
+                               ordered=True)
 df.groupby(['WEEKDAY', 'DRINKS']).count()['YEAR'].unstack().plot.bar(figsize=(12,7))
 plt.title('Drinks bought by day of the week')
 plt.xticks(rotation=45)
