@@ -89,10 +89,10 @@ else:
 ## Part III: Visualize and discuss simulation    ***********************************************************************
 ## *********************************************************************************************************************
 
-# Give examples of purchases
-transactions['PURCHASE'][0].describe_purchase()
-transactions['PURCHASE'][100].describe_purchase()
-transactions['PURCHASE'][1500].describe_purchase()
+# Give examples of purchases (random)
+transactions['PURCHASE'][1].describe_purchase()
+transactions['PURCHASE'][11].describe_purchase()
+transactions['PURCHASE'][996].describe_purchase()
 
 # How much money was spent by returning customers?
 moneyspent = [ReturningCust[i].money_spent for i in range(len(ReturningCust))]
@@ -130,7 +130,7 @@ def sumtype(dataframe):
 
 trans_sum_type = sumtype(transactions)
 
-plt.figure()
+plt.figure(figsize=(12, 7))
 plt.stackplot(trans_sum_type.index, trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
               trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
               labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
