@@ -41,7 +41,7 @@ without having to run the whole simulation. Those are actual simulations obtaine
 The general 5 year simulation is called "TransactionsDF.dat". The other databases correspond to 
 different hypothesis that are made. 
 
-###3.3. Code
+### 3.3. Code
 The Code folder contains the four python files used to solve the project. Each file correspond to a different part of 
 the assignment. 
 
