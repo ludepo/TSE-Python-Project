@@ -120,6 +120,7 @@ plt.ylabel('Values in €')
 plt.title('Average income during day')
 
 
+
 # -- aggregated income by types per day
 # create function to aggregate data by type per day
 def sumtype(dataframe):
@@ -129,7 +130,7 @@ def sumtype(dataframe):
     data = data.pivot(index="DATE", columns="CUSTOMER_TYPE", values="TOTAL")
     return data
 
-trans_sum_type = sumtype(transactionsFourMonths)
+trans_sum_type = sumtype(transactions)
 
 plt.figure()
 plt.stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
@@ -139,6 +140,8 @@ plt.legend(bbox_to_anchor=(0.01, .925, .98, 1.5), loc='lower left', mode="expand
 plt.ylabel('Value in €')
 plt.xlabel('Date')
 plt.title('Aggregated turnover per day by customer type')
+
+
 
 
 

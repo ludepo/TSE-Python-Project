@@ -2,7 +2,7 @@ import uuid
 import random
 import pandas as pd
 from progressbar import progressbar
-from itertools import product, repeat
+from itertools import product
 
 
 ## *********************************************************************************************************************
@@ -123,20 +123,19 @@ class Purchase(object):
 ##     Part II: Functions        ***************************************************************************************
 ## *********************************************************************************************************************
 
-# TODO: change function back to standard version
+# create function that defines what type of customer enters the cafe for a given time (robust version)
 def ChooseCustomer(ReturningCust):
     liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if
               ReturningCust[i].budget > 8]  # is returner solvent?
-    allcust = [Customer(), Tripadvised()]  # create list for possible customers (note we do not care what Customer() or
-    allcust.extend(liquid)  # Tripadvised() comes, but for Returner() and Hipster() we want to keep track
-    weights = [72, (100 - 72 - len(liquid) * (20 / len(ReturningCust)))]  # bankrupt returning customers are replaced by Tripadvised
-    weights.extend(list(repeat((20 / len(ReturningCust)), len(liquid))))  # prob. of repeating returner dependen on overall nr.
-
     if liquid == []:  # if all returners are bankrupt
-        customer = random.choices([Customer(), Tripadvised()], weights=[72, 28], k=1)  # if all returners bankrupt
+        customer = random.choices([Customer(), Tripadvised()], weights=[90, 10], k=1)  # if all returners bankrupt
 
     else:  # if there are still liquid returners
-        customer = random.choices(allcust, weights=weights, k=1)
+        returner = random.choice(liquid)  # define type of returner (normal/hipster)
+        customer = random.choices([returner, Customer(), Tripadvised()],
+                                  weights=[20, 72, 8],  # 20% chance for returner, 72% normal one time customer,
+                                  k=1)  # 8% tripadvisor customer
+
     return customer[0]
 
 

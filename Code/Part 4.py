@@ -219,7 +219,8 @@ if answer == "run":
 elif answer == "load":
     # simulate four month to see that program works fine
     ReturningCustFourMonth_fifty = ReturningCust_fifty.copy() # copy list of returning customers just to show changes
-    transactionsFourMonths_fifty = SimulateRange(dfprob, ReturningCustFourMonth_fifty, items, start="2016-11-01", end="2018-02-10") # TODO change to 4 month
+    transactionsFourMonths_fifty = SimulateRange(dfprob, ReturningCustFourMonth_fifty,
+                                                 items, start="2017-11-01", end="2018-02-10")
     # transform created data to show objects along with their attributes
     transactionsFourMonths_fifty = NoObjects(transactionsFourMonths_fifty)
     # get full simulation stored in pickle file
@@ -255,9 +256,10 @@ ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], t
 ax[0].set(title='Original simulation (returners=1000)', ylabel='Value in €')
 
 
-ax[1].stackplot(trans_sum_type_fifty.index,  trans_sum_type_fifty['tripadvisor_one_time'], trans_sum_type_fifty['normal_one_time'],
-              trans_sum_type_fifty['hipster_returning'], trans_sum_type_fifty['normal_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+ax[1].stackplot(trans_sum_type_fifty.index,  trans_sum_type_fifty['tripadvisor_one_time'],
+                trans_sum_type_fifty['normal_one_time'], trans_sum_type_fifty['hipster_returning'],
+                trans_sum_type_fifty['normal_returning'],
+                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 ax[1].set(title='Changed simulation (returners=50)', ylabel='Value in €', xlabel='Date')
 
 
@@ -302,8 +304,8 @@ def SimulateRange(probabilities, ReturningCust, items, start = "2016-01-01", end
     return transactions
 
 # create individual list of returning customers
-ReturningCust_inflat = [Returner() for i in range(66)]  # prob = 2/3 for being normal returning customer # TODO change
-ReturningCust_inflat.extend([Hipster() for i in range(33)])  # prob = 1/3 for being hipster
+ReturningCust_inflat = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer
+ReturningCust_inflat.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
 
 # again, define whether simulation should be run or pickle file should be loaded
 # Input mask to specify option
@@ -322,7 +324,8 @@ if answer == "run":
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
     ReturningCustFourMonth_inflat = ReturningCust_inflat.copy() # copy list of returning customers just to show changes
-    transactionsFourMonths_inflat = SimulateRange(dfprob, ReturningCustFourMonth_inflat, items, start="2016-11-01", end="2018-02-10") #TODO change to 4 month
+    transactionsFourMonths_inflat = SimulateRange(dfprob, ReturningCustFourMonth_inflat,
+                                                  items, start="2017-11-01", end="2018-02-10")
     transactionsFourMonths_inflat = NoObjects(transactionsFourMonths_inflat)
     # get full simulation stored in pickle file
     transactions_inflat = pickle.load(open(PIKdata_inflat, "rb"))
@@ -343,18 +346,16 @@ fig, ax = plt.subplots(2, sharex='col', sharey='row')
 plt.title('Aggregated turnover per day by customer type')
 
 ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
-              trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+                trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
+                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 ax[0].set(title='Original simulation (steady prices)', ylabel='Value in €')
 
 
-ax[1].stackplot(trans_sum_type_inflat.index,  trans_sum_type_inflat['tripadvisor_one_time'], trans_sum_type_inflat['normal_one_time'],
-              trans_sum_type_inflat['hipster_returning'], trans_sum_type_inflat['normal_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+ax[1].stackplot(trans_sum_type_inflat.index,  trans_sum_type_inflat['tripadvisor_one_time'],
+                trans_sum_type_inflat['normal_one_time'], trans_sum_type_inflat['hipster_returning'],
+                trans_sum_type_inflat['normal_returning'],
+                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 ax[1].set(title='Changed simulation (prices increase 20% in 2018)', ylabel='Value in €', xlabel='Date')
-
-
-
 
 
 # in order to not have the inflation in the following simulations, we will re-run the standard versions of the functions
@@ -395,8 +396,8 @@ def SimulateRange(probabilities, ReturningCust, items, start = "2016-01-01", end
 # before running the simulation again (note that also here the additional assumption is needed)
 
 # create individual list of returning customers
-ReturningCust_budget = [Returner() for i in range(66)]  # prob = 2/3 for being normal returning customer # TODO change
-ReturningCust_budget.extend([Hipster() for i in range(33)])  # prob = 1/3 for being hipster
+ReturningCust_budget = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer
+ReturningCust_budget.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
 # update change in initial budget
 for i in ReturningCust_budget:
     if i.type == "hipster_returning":
@@ -420,7 +421,8 @@ if answer == "run":
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
     ReturningCustFourMonth_budget = ReturningCust_budget.copy() # copy list of returning customers just to show changes
-    transactionsFourMonths_budget = SimulateRange(dfprob, ReturningCustFourMonth_budget, items, start="2016-11-01", end="2018-02-10") #TODO change to 4 month
+    transactionsFourMonths_budget = SimulateRange(dfprob, ReturningCustFourMonth_budget,
+                                                  items, start="2017-11-01", end="2018-02-10")
     transactionsFourMonths_budget = NoObjects(transactionsFourMonths_budget)
     # get full simulation stored in pickle file
     transactions_budget = pickle.load(open(PIKdata_budget, "rb"))
@@ -446,9 +448,10 @@ ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], t
 ax[0].set(title='Original simulation (Hipster budget 250€)', ylabel='Value in €')
 
 
-ax[1].stackplot(trans_sum_type_budget.index,  trans_sum_type_budget['tripadvisor_one_time'], trans_sum_type_budget['normal_one_time'],
-              trans_sum_type_budget['normal_returning'], trans_sum_type_budget['hipster_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+ax[1].stackplot(trans_sum_type_budget.index,  trans_sum_type_budget['tripadvisor_one_time'],
+                trans_sum_type_budget['normal_one_time'], trans_sum_type_budget['normal_returning'],
+                trans_sum_type_budget['hipster_returning'],
+                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
 ax[1].set(title='Changed simulation (Hipster budget 40€)', ylabel='Value in €', xlabel='Date')
 
 
@@ -464,8 +467,6 @@ ax[1].set(title='Changed simulation (Hipster budget 40€)', ylabel='Value in �
 ## spent all their money there so the cafe should have a good rating and attract more customers from tripadvisor. This
 ## is also beneficial for the cafe as the tripadvisor customers are the only ones giving tips.
 
-# TODO: Try run with full sample to see if problem still there, it seems like function is not called (change in weights desnt change anything)
-
 # ChooseCustomer() with assumption that returners will not go more often if another returner is bankrupt but instead go
 # at same frequency
 def ChooseCustomer(ReturningCust):
@@ -473,8 +474,8 @@ def ChooseCustomer(ReturningCust):
               ReturningCust[i].budget > 8]  # is returner solvent?
     allcust = [Customer(), Tripadvised()]  # create list for possible customers (note we do not care what Customer() or
     allcust.extend(liquid)  # Tripadvised() comes, but for Returner() and Hipster() we want to keep track
-    weights = [0.0001, (100 - 72 - len(liquid) * (20 / len(ReturningCust)))]  # bankrupt returning customers are replaced by Tripadvised
-    weights.extend(list(repeat((20 / len(ReturningCust)), len(liquid))))  # prob. of repeating returner dependen on overall nr.
+    weights = [72, (100 - 72 - len(liquid) * (20 / len(ReturningCust)))]  # bankrupt ret. cust. are repl. by Tripadvised
+    weights.extend(list(repeat((20 / len(ReturningCust)), len(liquid))))  # prob. of repeating ret. dep. on overall nr.
 
     if liquid == []:  # if all returners are bankrupt
         customer = random.choices([Customer(), Tripadvised()], weights=[72, 28], k=1)  # if all returners bankrupt
@@ -484,14 +485,14 @@ def ChooseCustomer(ReturningCust):
     return customer[0]
 
 # create individual list of returning customers
-ReturningCust_lottery = [Returner() for i in range(66)]  # prob = 2/3 for being normal returning customer # TODO change
-ReturningCust_lottery.extend([Hipster() for i in range(33)])  # prob = 1/3 for being hipster
+ReturningCust_lottery = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer
+ReturningCust_lottery.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
 
 # now run the simulation again
 # again, define whether simulation should be run or pickle file should be loaded
 # Input mask to specify option
-answer = input("Variation IV (returner assumption): \n Do you want to run full simulation (approx. 40min) or load pickle "
-               "files of full simulation and run \n representative (four month) simulation instead to see that code "
+answer = input("Variation IV (returner assumption): \n Do you want to run full simulation (approx. 40min) or load pickle"
+               " files of full simulation and run \n representative (four month) simulation instead to see that code "
                "works? If run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
 
 # If full simulation shall be run, this section of code is executed
@@ -505,7 +506,8 @@ if answer == "run":
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
     ReturningCustFourMonth_lottery = ReturningCust_lottery.copy()
-    transactionsFourMonths_lottery = SimulateRange(dfprob, ReturningCustFourMonth_lottery, items, start="2016-11-01", end="2018-02-10") #TODO change to 4 month
+    transactionsFourMonths_lottery = SimulateRange(dfprob, ReturningCustFourMonth_lottery,
+                                                   items, start="2017-11-01", end="2018-02-10")
     transactionsFourMonths_lottery = NoObjects(transactionsFourMonths_lottery)
     # get full simulation stored in pickle file
     transactions_lottery = pickle.load(open(PIKdata_lottery, "rb"))
@@ -522,7 +524,7 @@ trans_sum_type = sumtype(transactions)
 trans_sum_type_lottery = sumtype(transactions_lottery)
 
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(15,30))
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
 plt.title('Aggregated turnover per day by customer type')
 
 ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
@@ -531,8 +533,10 @@ ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], t
 ax[0].set(title='Original simulation (other returners compensate for bankrupt ones)', ylabel='Value in €')
 
 
-ax[1].stackplot(trans_sum_type_lottery.index,  trans_sum_type_lottery['tripadvisor_one_time'], trans_sum_type_lottery['normal_one_time'],
-                trans_sum_type_lottery['hipster_returning'], trans_sum_type_lottery['normal_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
-ax[1].set(title='Changed simulation (no change in visit frequency depending on other returners)', ylabel='Value in €', xlabel='Date')
+ax[1].stackplot(trans_sum_type_lottery.index,  trans_sum_type_lottery['tripadvisor_one_time'],
+                trans_sum_type_lottery['normal_one_time'], trans_sum_type_lottery['hipster_returning'],
+                trans_sum_type_lottery['normal_returning'],
+                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+ax[1].set(title='Changed simulation (no change in visit frequency depending on other returners)',
+          ylabel='Value in €', xlabel='Date')
 
