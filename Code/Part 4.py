@@ -48,8 +48,6 @@ ReturningCust = pickle.load(open(PIKreturn, "rb"))
 ReturningCust[555].purchase_history()
 ReturningCust[999].purchase_history()
 
-
-
 ## *********************************************************************************************************************
 ## II: Analysis of returning customers of the given dataset ************************************************************
 ## *********************************************************************************************************************
@@ -142,7 +140,7 @@ returners = divide(df, 1)
 onetimers = divide(df, 0)
 
 # -- Graphs for drinks
-fig1, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
+fig1, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12, 7))
 plt.title('Comparison in probabilities of buying different drinks for one time customers and returners')
 
 ax[0].stackplot(onetimers['TIME'], onetimers['DRINK_coffee'], onetimers['DRINK_water'],
@@ -162,7 +160,7 @@ plt.savefig('./Results/DrinkProbs.png')
 plt.show()
 
 # -- Graphs for food
-fig2, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
+fig2, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12, 7))
 plt.title('Comparison in probabilities of buying different foods for one time customers and returners')
 ax[0].stackplot(onetimers['TIME'], onetimers['FOOD_cookie'], onetimers['FOOD_muffin'],
                 onetimers['FOOD_nothing'], onetimers['FOOD_pie'], onetimers['FOOD_sandwich'],
@@ -177,8 +175,6 @@ plt.xticks(returners['TIME'][::30], returners['TIME'][::30])
 plt.legend(bbox_to_anchor=(0.85, 1), loc="center left", borderaxespad=0)
 plt.savefig('./Results/FoodProbs.png')
 plt.show()
-
-
 
 ########################################################################################################################
 ## For the following sections we will re-run the simulation so we have to define the inputs again                     ##
@@ -201,9 +197,6 @@ dfprob = pd.read_csv(import_dfprob, sep=";")
 dfprob.index = dfprob['ID']
 dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
 dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
-
-
-
 
 ## *********************************************************************************************************************
 ## III: What would happen if we lower the returning customers to 50 and simulate the same period? **********************
@@ -237,7 +230,7 @@ if answer == "run":
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
     # simulate four month to see that program works fine
-    ReturningCustFourMonth_fifty = ReturningCust_fifty.copy() # copy list of returning customers just to show changes
+    ReturningCustFourMonth_fifty = ReturningCust_fifty.copy()  # copy list of returning customers just to show changes
     transactionsFourMonths_fifty = SimulateRange(dfprob, ReturningCustFourMonth_fifty,
                                                  items, start="2017-11-01", end="2018-02-10")
     # transform created data to show objects along with their attributes
@@ -260,29 +253,27 @@ def sumtype(dataframe):
     data = data.pivot(index="DATE", columns="CUSTOMER_TYPE", values="TOTAL")
     return data
 
+
 # modify variables needed to plot
 trans_sum_type = sumtype(transactions)
 trans_sum_type_fifty = sumtype(transactions_fifty)
 
-
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12, 7))
 plt.title('Aggregated turnover per day by customer type')
 
-ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
-              trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+ax[0].stackplot(trans_sum_type.index, trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
+                trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
+                labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[0].set(title='Original simulation (returners=1000)', ylabel='Value in €')
 
-
-ax[1].stackplot(trans_sum_type_fifty.index,  trans_sum_type_fifty['tripadvisor_one_time'],
+ax[1].stackplot(trans_sum_type_fifty.index, trans_sum_type_fifty['tripadvisor_one_time'],
                 trans_sum_type_fifty['normal_one_time'], trans_sum_type_fifty['hipster_returning'],
                 trans_sum_type_fifty['normal_returning'],
-                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+                labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[1].set(title='Changed simulation (returners=50)', ylabel='Value in €', xlabel='Date')
 plt.savefig('./Results/FiftySim.png')
 plt.show()
-
 
 
 ## *********************************************************************************************************************
@@ -304,7 +295,7 @@ def MakePurchase(customer, hour, minute, probabilities, items, date):  # additio
 
 
 # the SimulateRange() function needs to be modified too since MakePurchase() now requires date input
-def SimulateRange(probabilities, ReturningCust, items, start = "2016-01-01", end = "2020-12-31"):
+def SimulateRange(probabilities, ReturningCust, items, start="2016-01-01", end="2020-12-31"):
     daterange = pd.date_range(start=start, end=end).strftime("%Y-%m-%d").to_list()
     time = probabilities['ID']
     transactions = pd.DataFrame({'DATETIME': [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
@@ -321,6 +312,7 @@ def SimulateRange(probabilities, ReturningCust, items, start = "2016-01-01", end
                                                    items,
                                                    transactions['DATETIME'].values[i])  # date passed to function
     return transactions
+
 
 # create individual list of returning customers
 ReturningCust_inflat = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer
@@ -344,7 +336,7 @@ if answer == "run":
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
-    ReturningCustFourMonth_inflat = ReturningCust_inflat.copy() # copy list of returning customers just to show changes
+    ReturningCustFourMonth_inflat = ReturningCust_inflat.copy()  # copy list of returning customers just to show changes
     transactionsFourMonths_inflat = SimulateRange(dfprob, ReturningCustFourMonth_inflat,
                                                   items, start="2017-11-01", end="2018-02-10")
     transactionsFourMonths_inflat = NoObjects(transactionsFourMonths_inflat)
@@ -356,26 +348,24 @@ elif answer == "load":
 else:
     print("Either 'run' or 'load' needs to be specified!")
 
-
 # -- compare aggregated income by types per day
 # modify variables needed to plot
 trans_sum_type = sumtype(transactions)
 trans_sum_type_inflat = sumtype(transactions_inflat)
 
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12, 7))
 plt.title('Aggregated turnover per day by customer type')
 
-ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
+ax[0].stackplot(trans_sum_type.index, trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
                 trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
-                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+                labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[0].set(title='Original simulation (steady prices)', ylabel='Value in €')
 
-
-ax[1].stackplot(trans_sum_type_inflat.index,  trans_sum_type_inflat['tripadvisor_one_time'],
+ax[1].stackplot(trans_sum_type_inflat.index, trans_sum_type_inflat['tripadvisor_one_time'],
                 trans_sum_type_inflat['normal_one_time'], trans_sum_type_inflat['hipster_returning'],
                 trans_sum_type_inflat['normal_returning'],
-                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+                labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[1].set(title='Changed simulation (prices increase 20% in 2018)', ylabel='Value in €', xlabel='Date')
 plt.savefig('./Results/InflatSim.png')
 plt.show()
@@ -383,28 +373,28 @@ plt.show()
 
 # in order to not have the inflation in the following simulations, we will re-run the standard versions of the functions
 # create function that will assign a purchase object for a given customer at a given hour and minute
-def MakePurchase(customer, hour, minute, probabilities, items): # probabilities refers to dfobtained in Exploratory.py
-    purchase = Purchase(customer, hour, minute, probabilities, items) # create purchase object
-    customer.money_spent += purchase.payment # update money_spent attribute of chosen customer
-    customer.budget -= purchase.payment # update budget of chosen customer
-    customer.purchases.append(purchase) # update purchase history of chosen customer
+def MakePurchase(customer, hour, minute, probabilities, items):  # probabilities refers to dfobtained in Exploratory.py
+    purchase = Purchase(customer, hour, minute, probabilities, items)  # create purchase object
+    customer.money_spent += purchase.payment  # update money_spent attribute of chosen customer
+    customer.budget -= purchase.payment  # update budget of chosen customer
+    customer.purchases.append(purchase)  # update purchase history of chosen customer
     return purchase
 
 
 # create function to simulate five years (or different if specified in input)
-def SimulateRange(probabilities, ReturningCust, items, start = "2016-01-01", end = "2020-12-31"):
+def SimulateRange(probabilities, ReturningCust, items, start="2016-01-01", end="2020-12-31"):
     ## !!! Important !!! function needs around 40 minutes if simulation for five years.
     #                     Progress bar will give progress and estimate of overall time
-    daterange = pd.date_range(start=start,end=end).strftime("%Y-%m-%d").to_list() # define range of date
+    daterange = pd.date_range(start=start, end=end).strftime("%Y-%m-%d").to_list()  # define range of date
     time = probabilities['ID']
-    transactions = pd.DataFrame({'DATETIME' : [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
-    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H") # get hour from datetime column
-    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M") # get minute from datetime column
+    transactions = pd.DataFrame({'DATETIME': [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
+    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H")  # get hour from datetime column
+    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M")  # get minute from datetime column
     transactions['CUSTOMER'] = None
     transactions['PURCHASE'] = None
-    for i in progressbar(range(0, len(transactions))): # *** see comment below
-        transactions['CUSTOMER'][i] = ChooseCustomer(ReturningCust) # assign customer object for given time
-        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i], # assign purchase object
+    for i in progressbar(range(0, len(transactions))):  # *** see comment below
+        transactions['CUSTOMER'][i] = ChooseCustomer(ReturningCust)  # assign customer object for given time
+        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i],  # assign purchase object
                                                    transactions['HOUR'].values[i],
                                                    transactions['MINUTE'].values[i],
                                                    probabilities,
@@ -445,7 +435,7 @@ if answer == "run":
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
-    ReturningCustFourMonth_budget = ReturningCust_budget.copy() # copy list of returning customers just to show changes
+    ReturningCustFourMonth_budget = ReturningCust_budget.copy()  # copy list of returning customers just to show changes
     transactionsFourMonths_budget = SimulateRange(dfprob, ReturningCustFourMonth_budget,
                                                   items, start="2017-11-01", end="2018-02-10")
     transactionsFourMonths_budget = NoObjects(transactionsFourMonths_budget)
@@ -457,26 +447,24 @@ elif answer == "load":
 else:
     print("Either 'run' or 'load' needs to be specified!")
 
-
 # -- compare aggregated income by types per day
 # modify variables needed to plot
 trans_sum_type = sumtype(transactions)
 trans_sum_type_budget = sumtype(transactions_budget)
 
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12, 7))
 plt.title('Aggregated turnover per day by customer type')
 
-ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
-              trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+ax[0].stackplot(trans_sum_type.index, trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
+                trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
+                labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[0].set(title='Original simulation (Hipster budget 250€)', ylabel='Value in €')
 
-
-ax[1].stackplot(trans_sum_type_budget.index,  trans_sum_type_budget['tripadvisor_one_time'],
+ax[1].stackplot(trans_sum_type_budget.index, trans_sum_type_budget['tripadvisor_one_time'],
                 trans_sum_type_budget['normal_one_time'], trans_sum_type_budget['normal_returning'],
                 trans_sum_type_budget['hipster_returning'],
-                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+                labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[1].set(title='Changed simulation (Hipster budget 40€)', ylabel='Value in €', xlabel='Date')
 plt.savefig('./Results/BudgetSim.png')
 plt.show()
@@ -510,6 +498,7 @@ def ChooseCustomer(ReturningCust):
         customer = random.choices(allcust, weights=weights, k=1)
     return customer[0]
 
+
 # create individual list of returning customers
 ReturningCust_lottery = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer
 ReturningCust_lottery.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
@@ -517,9 +506,10 @@ ReturningCust_lottery.extend([Hipster() for i in range(333)])  # prob = 1/3 for 
 # now run the simulation again
 # again, define whether simulation should be run or pickle file should be loaded
 # Input mask to specify option
-answer = input("Variation IV (returner assumption): \n Do you want to run full simulation (approx. 40min) or load pickle"
-               " files of full simulation and run \n representative (four month) simulation instead to see that code "
-               "works? If run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
+answer = input(
+    "Variation IV (returner assumption): \n Do you want to run full simulation (approx. 40min) or load pickle"
+    " files of full simulation and run \n representative (four month) simulation instead to see that code "
+    "works? If run full simulation, \n input 'run', if load pickle file input 'load'.\n \n Answer:   ")
 
 # If full simulation shall be run, this section of code is executed
 if answer == "run":
@@ -545,28 +535,25 @@ elif answer == "load":
 else:
     print("Either 'run' or 'load' needs to be specified!")
 
-
 # -- compare aggregated income by types per day
 # modify variables needed to plot
 trans_sum_type = sumtype(transactions)
 trans_sum_type_lottery = sumtype(transactions_lottery)
 
 # plot
-fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12,7))
+fig, ax = plt.subplots(2, sharex='col', sharey='row', figsize=(12, 7))
 plt.title('Aggregated turnover per day by customer type')
 
-ax[0].stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
-              trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+ax[0].stackplot(trans_sum_type.index, trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
+                trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
+                labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[0].set(title='Original simulation (other returners compensate for bankrupt ones)', ylabel='Value in €')
 
-
-ax[1].stackplot(trans_sum_type_lottery.index,  trans_sum_type_lottery['tripadvisor_one_time'],
+ax[1].stackplot(trans_sum_type_lottery.index, trans_sum_type_lottery['tripadvisor_one_time'],
                 trans_sum_type_lottery['normal_one_time'], trans_sum_type_lottery['hipster_returning'],
                 trans_sum_type_lottery['normal_returning'],
-                labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+                labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 ax[1].set(title='Changed simulation (no change in visit frequency depending on other returners)',
           ylabel='Value in €', xlabel='Date')
 plt.savefig('./Results/LotterySim.png')
 plt.show()
-
