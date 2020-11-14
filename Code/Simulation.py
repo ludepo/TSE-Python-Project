@@ -38,11 +38,9 @@ dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
 dfprob['MINUTE'] = dfprob.ID.str.slice(start=3, stop=5)
 
 # create list of returning customers
-ReturningCust = [Returner() for i in range(667)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
+ReturningCust = [Returner() for i in
+                 range(667)]  # prob = 2/3 for being normal returning customer(out of 1000 returning)
 ReturningCust.extend([Hipster() for i in range(333)])  # prob = 1/3 for being hipster
-
-
-
 
 ## *********************************************************************************************************************
 ## Part II: Simulation                           ***********************************************************************
@@ -71,7 +69,7 @@ if answer == "run":
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
     # simulate four month to see that program works fine
-    ReturningCustFourMonth = ReturningCust.copy() # copy list of returning customers just to show changes
+    ReturningCustFourMonth = ReturningCust.copy()  # copy list of returning customers just to show changes
     transactionsFourMonths = SimulateRange(dfprob, ReturningCustFourMonth, items, start="2017-11-01", end="2018-02-10")
     # transform created data to show objects along with their attributes
     transactionsFourMonths = NoObjects(transactionsFourMonths)
@@ -86,9 +84,6 @@ elif answer == "load":
 else:
     print("Either 'run' or 'load' needs to be specified!")
 
-
-
-
 ## *********************************************************************************************************************
 ## Part III: Visualize and discuss simulation    ***********************************************************************
 ## *********************************************************************************************************************
@@ -100,12 +95,12 @@ transactions['PURCHASE'][1500].describe_purchase()
 
 # How much money was spent by returning customers?
 moneyspent = [ReturningCust[i].money_spent for i in range(len(ReturningCust))]
-print("The average amount spent by a returning customer was %s" %(sum(moneyspent)/len(moneyspent)))
+print("The average amount spent by a returning customer was %s" % (sum(moneyspent) / len(moneyspent)))
 
 # How much budget do returning customers have left?
 budgets = [ReturningCust[i].budget for i in range(len(ReturningCust))]
 print("The average budget left for a normal returning customer was %s€ and for a hipster %s€"
-      %(round(sum(budgets[:666])/len(budgets[:666])), round(sum(budgets[666:])/len(budgets[666:]))))
+      % (round(sum(budgets[:666]) / len(budgets[:666])), round(sum(budgets[666:]) / len(budgets[666:]))))
 
 # -- average income during day
 trans_mean_day = transactions.groupby(by='TIME').mean().reset_index()
@@ -131,22 +126,19 @@ def sumtype(dataframe):
     data = data.pivot(index="DATE", columns="CUSTOMER_TYPE", values="TOTAL")
     return data
 
+
 trans_sum_type = sumtype(transactions)
 
 plt.figure()
-plt.stackplot(trans_sum_type.index,  trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
+plt.stackplot(trans_sum_type.index, trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
               trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
-              labels = ['Tripadvised','Normal one-time','Hipster','Normal returning'])
+              labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
 plt.legend(bbox_to_anchor=(0.01, .925, .98, 1.5), loc='lower left', mode="expand", ncol=4, borderaxespad=0.)
 plt.ylabel('Value in €')
 plt.xlabel('Date')
 plt.title('Aggregated turnover per day by customer type')
 plt.savefig('./Results/IncomeDaySim.png')
 plt.show()
-
-
-
-
 
 ## *********************************************************************************************************************
 ## Part VI: Comparison with given data *********************************************************************************
@@ -169,7 +161,3 @@ plt.ylabel('Values in €')
 plt.title('Average income during day')
 plt.savefig('./Results/MeanIncomeDay.png')
 plt.show()
-
-
-
-
