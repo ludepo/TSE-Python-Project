@@ -7,11 +7,10 @@ import numpy as np
 ## 0: Import data ******************************************************************************************************
 ## *********************************************************************************************************************
 
-
 # define input and output path
 importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
 exportpath_probs = os.path.abspath("./Results/dfprobs.csv")
-exportpath_data = os.path.abspath("./Results/coffee_bar_prices.csv")
+exportpath_data = os.path.abspath("./Results/coffeebar_prices.csv")
 
 # load dataframe
 df = pd.read_csv(importpath, sep=";")
@@ -34,6 +33,7 @@ def addcolumns(dataframe):  # function serves to add variables for easier groupi
     data['TIME'] = data.DATETIME.dt.time
     data['DATE'] = data.DATETIME.dt.date
     data['FOOD'] = data['FOOD'].fillna('nothing')
+    data['RET'] = (data.duplicated(keep=False, subset=['CUSTOMER'])) * 1
     return data
 
 
@@ -55,17 +55,13 @@ print(df.CUSTOMER.nunique())
 # -- Count number of each drinks sold over the 5 years span
 plt.bar(df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).DRINKS,
         df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
+plt.xticks(rotation=45)
 plt.show()
 
 # -- Count number of each food sold over the 5 years span
 plt.bar(df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).FOOD,
         df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
-plt.show()
-
-# -- Different foods and drinks sold depending on the time of the day
-df.groupby(['TIME', 'FOOD']).count()['YEAR'].unstack().plot()
-plt.show()
-df.groupby(['TIME', 'DRINKS']).count()['YEAR'].unstack().plot()
+plt.xticks(rotation=45)
 plt.show()
 
 # -- Graph for food and drinks depending on the week day
@@ -78,7 +74,7 @@ plt.show()
 ## III: Obtain time probabilities   ************************************************************************************
 ## *********************************************************************************************************************
 
-# Determine the average that a customer buys a certain food or drink at any given time:
+# 3.1) Determine the average that a customer buys a certain food or drink at any given time:
 
 dfprob = df.drop(['CUSTOMER', 'DATETIME', 'YEAR', 'WEEKDAY', 'DATE'], axis=1)
 dfprob = pd.get_dummies(dfprob, columns=["DRINKS", "FOOD"], prefix=["DRINK", "FOOD"]). \
@@ -100,13 +96,18 @@ for index, row in dfprob.iterrows():
 
 # Dataframe for probabilities of buying certain drink depending on the time of the day
 dfpropdrink = dfprob[['DRINK_coffee', 'DRINK_soda', 'DRINK_frappucino', 'DRINK_milkshake', 'DRINK_tea', 'DRINK_water']]
-dfpropdrink.plot.area()
-plt.show()
 
 # Dataframe for probabilities of buying certain food depending on the time of the day
 dfpropfood = dfprob[['FOOD_cookie', 'FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', 'FOOD_sandwich']]
+
+
+# 3.2) Graphics on the probabilities of buying different items depending on the time of the day
+dfpropdrink.plot.area()
+plt.show()
+
 dfpropfood.plot.area()
 plt.show()
+
 
 ## *********************************************************************************************************************
 ## IV: Add prices for later comparison *********************************************************************************
@@ -149,10 +150,10 @@ def tips(dataframe):  # function that takes a subsample of 10% of onetimers and 
 df_tips = tips(df)
 
 
-def total(df_prices):  # function that merge turnover and tips in the same dataset
-    df_prices = pd.merge(df_prices, df_tips, how='left', on='CUSTOMER')
-    df_prices['TIPS'] = df_prices['TIPS'].fillna(0)
-    return df_prices
+def total(data):  # function that merge turnover and tips in the same dataset
+    data = pd.merge(data, df_tips, how='left', on='CUSTOMER')
+    data['TIPS'] = data['TIPS'].fillna(0)
+    return data
 
 
 coffee_bar_prices = total(df_prices)
@@ -160,7 +161,7 @@ coffee_bar_prices = total(df_prices)
 ## *********************************************************************************************************************
 ## V: Export Data ******************************************************************************************************
 ## *********************************************************************************************************************
-# Export database that will be used later
+# Export the databases contadatabases that will be used later
 
 dfprob.to_csv(exportpath_probs, sep=";", index=False)
 coffee_bar_prices.to_csv(exportpath_data, sep=";", index=False)

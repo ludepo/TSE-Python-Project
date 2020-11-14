@@ -12,11 +12,11 @@ from itertools import product
 # create superclass for type of customer ("default customer" 0 normal one time customer)
 class Customer(object):
     def __init__(self):
-        self.ID = "CID" + str(uuid.uuid1()) # unique ID
+        self.ID = "CID" + str(uuid.uuid1())  # unique ID
         self.type = "normal_one_time"
         self.money_spent = 0
         self.budget = 100
-        self.purchases = [] # note that appended purchases will be objects of class "Purchase()"
+        self.purchases = []  # note that appended purchases will be objects of class "Purchase()"
         self.tip = 0
 
     # method for telling what drinks have been bought in the past
@@ -46,7 +46,7 @@ class Tripadvised(Customer):
     def __init__(self):
         super().__init__()
         self.type = "tripadvisor_one_time"
-        self.tip = random.choice(range(100, 1001))/100
+        self.tip = random.choice(range(100, 1001)) / 100
 
 
 # create subclass for normal returning customer (differs in available budget)
@@ -75,13 +75,13 @@ class item(object):
 
 # create class for purchases that allows to create objects for the individual purchases
 class Purchase(object):
-    def __init__(self, customer, hour, minute, probabilities, items): # probabilities is df obtained in Exploratory.py
-        self.customer = customer # note that customer will be an object
+    def __init__(self, customer, hour, minute, probabilities, items):  # probabilities is df obtained in Exploratory.py
+        self.customer = customer  # note that customer will be an object
         self.time = [hour, minute]
 
         # get the probabilities for the respective items at the given hour and minute
         prob = probabilities.drop('ID', axis=1)
-        prob = prob[(prob['HOUR'] == hour) & (prob['MINUTE'] == minute)].drop(['HOUR', 'MINUTE'],axis=1)
+        prob = prob[(prob['HOUR'] == hour) & (prob['MINUTE'] == minute)].drop(['HOUR', 'MINUTE'], axis=1)
 
         # match the items with the given probability for the hour and the minute
         assignedprob = []
@@ -103,13 +103,13 @@ class Purchase(object):
                 print("ERROR")
 
         # run lottery for what food and what drink is chosen given the items and their probabilities
-        food = random.choices(food, weights = foodprob, k=1)
-        drink = random.choices(drinks, weights = drinksprob, k=1)
+        food = random.choices(food, weights=foodprob, k=1)
+        drink = random.choices(drinks, weights=drinksprob, k=1)
 
-        self.drink = drink[0] # note that drink will be an object
-        self.food = food[0] # note that food will also be an object
+        self.drink = drink[0]  # note that drink will be an object
+        self.food = food[0]  # note that food will also be an object
         self.value = food[0].price + drink[0].price
-        self.payment = self.value + customer.tip # payment might differ from value as tip is possible
+        self.payment = self.value + customer.tip  # payment might differ from value as tip is possible
         self.tip = customer.tip
 
     def describe_purchase(self):
@@ -119,19 +119,18 @@ class Purchase(object):
                  self.drink.name, self.food.name, self.value, self.tip))
 
 
-
-
 ## *********************************************************************************************************************
 ##     Part II: Functions        ***************************************************************************************
 ## *********************************************************************************************************************
 
 # create function that defines what type of customer enters the cafe for a given time (robust version)
 def ChooseCustomer(ReturningCust):
-    liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if ReturningCust[i].budget > 8]  # is returner solvent?
-    if liquid == []: # if all returners are bankrupt
+    liquid = [ReturningCust[i] for i in range(len(ReturningCust)) if
+              ReturningCust[i].budget > 8]  # is returner solvent?
+    if liquid == []:  # if all returners are bankrupt
         customer = random.choices([Customer(), Tripadvised()], weights=[90, 10], k=1)  # if all returners bankrupt
 
-    else: # if there are still liquid returners
+    else:  # if there are still liquid returners
         returner = random.choice(liquid)  # define type of returner (normal/hipster)
         customer = random.choices([returner, Customer(), Tripadvised()],
                                   weights=[20, 72, 8],  # 20% chance for returner, 72% normal one time customer,
@@ -141,39 +140,41 @@ def ChooseCustomer(ReturningCust):
 
 
 # create function that will assign a purchase object for a given customer at a given hour and minute
-def MakePurchase(customer, hour, minute, probabilities, items): # probabilities refers to dfobtained in Exploratory.py
-    purchase = Purchase(customer, hour, minute, probabilities, items) # create purchase object
-    customer.money_spent += purchase.payment # update money_spent attribute of chosen customer
-    customer.budget -= purchase.payment # update budget of chosen customer
-    customer.purchases.append(purchase) # update purchase history of chosen customer
+def MakePurchase(customer, hour, minute, probabilities, items):  # probabilities refers to dfobtained in Exploratory.py
+    purchase = Purchase(customer, hour, minute, probabilities, items)  # create purchase object
+    customer.money_spent += purchase.payment  # update money_spent attribute of chosen customer
+    customer.budget -= purchase.payment  # update budget of chosen customer
+    customer.purchases.append(purchase)  # update purchase history of chosen customer
     return purchase
 
 
 # create function to simulate five years (or different if specified in input)
-def SimulateRange(probabilities, ReturningCust, items, start = "2016-01-01", end = "2020-12-31"):
+def SimulateRange(probabilities, ReturningCust, items, start="2016-01-01", end="2020-12-31"):
     ## !!! Important !!! function needs around 40 minutes if simulation for five years.
     #                     Progress bar will give progress and estimate of overall time
-    daterange = pd.date_range(start=start,end=end).strftime("%Y-%m-%d").to_list() # define range of date
+    daterange = pd.date_range(start=start, end=end).strftime("%Y-%m-%d").to_list()  # define range of date
     time = probabilities['ID']
-    transactions = pd.DataFrame({'DATETIME' : [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
-    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H") # get hour from datetime column
-    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M") # get minute from datetime column
+    transactions = pd.DataFrame({'DATETIME': [pd.to_datetime(" ".join(i)) for i in product(daterange, time)]})
+    transactions['HOUR'] = transactions['DATETIME'].dt.strftime("%H")  # get hour from datetime column
+    transactions['MINUTE'] = transactions['DATETIME'].dt.strftime("%M")  # get minute from datetime column
     transactions['CUSTOMER'] = None
     transactions['PURCHASE'] = None
-    for i in progressbar(range(0, len(transactions))): # *** see comment below
-        transactions['CUSTOMER'][i] = ChooseCustomer(ReturningCust) # assign customer object for given time
-        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i], # assign purchase object
+    for i in progressbar(range(0, len(transactions))):  # *** see comment below
+        transactions['CUSTOMER'][i] = ChooseCustomer(ReturningCust)  # assign customer object for given time
+        transactions['PURCHASE'][i] = MakePurchase(transactions['CUSTOMER'].values[i],  # assign purchase object
                                                    transactions['HOUR'].values[i],
                                                    transactions['MINUTE'].values[i],
                                                    probabilities,
                                                    items)
     return transactions
+
+
 # *** the structure of looping through every row to change value in columns is slow but here necessary since the
 #     chosen customer attributes need to be updated before the selection of the customer in the next slot
 
 
 # reformat dataframe to match it with initial data (show attribute instead of object)
-def NoObjects(dataframe): # function serves to show dataframe without objects but human-readable data
+def NoObjects(dataframe):  # function serves to show dataframe without objects but human-readable data
     data = dataframe.copy(deep=True)  # Make a copy so dataframe not overwritten
     data['CUSTOMER_ID'] = data['CUSTOMER'].apply(lambda x: x.ID)
     data['CUSTOMER_TYPE'] = data['CUSTOMER'].apply(lambda x: x.type)
@@ -183,6 +184,5 @@ def NoObjects(dataframe): # function serves to show dataframe without objects bu
     data['TIPS'] = data['PURCHASE'].apply(lambda x: x.tip)
     data['TIME'] = data['DATETIME'].dt.strftime("%H:%M:%S")
     data['DATE'] = data['DATETIME'].dt.date
-    data = data.drop(['HOUR', 'MINUTE'], axis = 1)
+    data = data.drop(['HOUR', 'MINUTE'], axis=1)
     return data
-
