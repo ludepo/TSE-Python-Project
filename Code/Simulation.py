@@ -64,6 +64,8 @@ if answer == "run":
     # save simulated data as pickle in order to access objects later again
     pickle.dump(transactions, open(PIKdata, "wb"))
     pickle.dump(ReturningCust, open(PIKreturn, "wb"))
+    # save simulated data as csv for completeness
+    transactions.to_csv(exportpath_sim, sep=";", index=False)
 
 # If data should be loaded instead, following commands will be run
 elif answer == "load":
@@ -75,8 +77,6 @@ elif answer == "load":
     # save simulated data as pickle in order to access objects later again
     pickle.dump(transactionsFourMonths, open(PIKdata4month, "wb"))
     pickle.dump(ReturningCustFourMonth, open(PIKreturn4month, "wb"))
-    # save simulated data as csv for completeness
-    transactions.to_csv(exportpath_sim, sep=";", index=False)
     # get full simulation stored in pickle file
     transactions = pickle.load(open(PIKdata, "rb"))
     ReturningCust = pickle.load(open(PIKreturn, "rb"))
