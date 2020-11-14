@@ -53,7 +53,7 @@ print(df.CUSTOMER.nunique())
 
 # 2.2) Create plots to illustrate the data
 # -- Count number of each drinks and food sold over the 5 years span
-plt.figure(figsize=(12,7))
+plt.figure(figsize=(12, 7))
 plt.title('Number of each drinks and food sold over 5 years')
 plt.bar(df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).DRINKS,
         df.groupby(by="DRINKS", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
@@ -62,6 +62,7 @@ plt.xticks(rotation=45)
 plt.bar(df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).FOOD,
         df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
 plt.xticks(rotation=45)
+plt.ylabel('Number of items sold')
 plt.savefig('./Results/FoodDrinksSold_Bar.png')
 plt.show()
 
@@ -113,12 +114,14 @@ dfpropfood = dfprob[['FOOD_cookie', 'FOOD_muffin', 'FOOD_nothing', 'FOOD_pie', '
 dfpropdrink.plot.area(figsize=(10,6))
 plt.legend(bbox_to_anchor=(0.77, 0.85), loc="center left", borderaxespad=0)
 plt.title('Probabilities of buying different drinks over the day')
+plt.ylabel('Probability in %')
 plt.savefig('./Results/DrinksProb_initial.png')
 plt.show()
 
 dfpropfood.plot.area(figsize=(10,6))
 plt.legend(bbox_to_anchor=(0.77, 0.85), loc="center left", borderaxespad=0)
 plt.title('Probabilities of buying different food over the day')
+plt.ylabel('Probability in %')
 plt.savefig('./Results/FoodProb_initial.png')
 plt.show()
 
