@@ -153,64 +153,23 @@ plt.show()
 ## *********************************************************************************************************************
 
 # load dataframe
+importpath = os.path.abspath("./Results/coffeebar_prices.csv")
+df = pd.read_csv(importpath, sep=";")
 
-df = pd.read_csv(import_sim_old, sep=";")
+# -- average income during day
+trans_mean_day = df.groupby(by='TIME').mean().reset_index()
 
-
-# Data cleaning
-def cleandata(dataframe):
-    dataframe['DATETIME'] = pd.to_datetime(dataframe['TIME'])
-    dataframe['YEAR'] = dataframe.DATETIME.dt.year
-    dataframe['WEEKDAY'] = dataframe.DATETIME.dt.day_name()
-    dataframe['WEEKDAY'] = dataframe.DATETIME.dt.day_name()
-    dataframe['TIME'] = dataframe.DATETIME.dt.time
-    dataframe['DATE'] = dataframe.DATETIME.dt.date
-    dataframe['FOOD'] = dataframe['FOOD'].fillna('nothing')
-    return dataframe
-
-
-df = cleandata(df)
-
-# Assign price to each item
-prices_drinks = {'DRINKS': ['coffee', 'frappucino', 'milkshake', 'soda', 'tea', 'water'],
-                 'PRICE_DRINKS': [3, 4, 5, 3, 3, 2]}
-prices_drinks = pd.DataFrame(prices_drinks)
-
-prices_food = {'FOOD': ['cookie', 'muffin', 'pie', 'sandwich', 'nothing'],
-               'PRICE_FOOD': [2, 3, 3, 2, 0]}
-prices_food = pd.DataFrame(prices_food)
+plt.figure()
+plt.plot(trans_mean_day.TIME, trans_mean_day.TURNOVER, label='Turnover mean')
+plt.plot(trans_mean_day.TIME, trans_mean_day.TIPS, label='Tips mean')
+plt.xticks(trans_mean_day['TIME'][::30], trans_mean_day['TIME'][::30])
+plt.legend(frameon=False, loc='center right')
+plt.xlabel('Hour of the day')
+plt.ylabel('Values in €')
+plt.title('Average income during day')
+plt.savefig('./Results/MeanIncomeDay.png')
+plt.show()
 
 
-# function for turnover
-def prices(dataframe):
-    dataframe = pd.merge(dataframe, prices_drinks, how='left', on='DRINKS')
-    dataframe = pd.merge(dataframe, prices_food, how='left', on='FOOD')
-    dataframe['TURNOVER'] = dataframe['PRICE_FOOD'] + dataframe['PRICE_DRINKS']
-    return dataframe
 
 
-df_prices = prices(df)
-
-
-# function for tips : we don't know who are the tripadvised customers, so we randomly select 8% of the customers that
-##will pay a tip
-def tips(dataframe):
-    dataframe = dataframe.sample(frac=.08)
-    dataframe['TIPS'] = (np.random.randint(0, 11, size=len(dataframe)))
-    dataframe = dataframe[['CUSTOMER', 'TIPS']]
-    dataframe['TIPS'] = dataframe['TIPS'].astype(int)
-    dataframe = dataframe.drop_duplicates(subset=['CUSTOMER'])
-    return dataframe
-
-
-df_tips = tips(df)
-
-
-# function for all prices
-def total(df_prices):
-    df_prices = pd.merge(df_prices, df_tips, how='left', on='CUSTOMER')
-    df_prices['TIPS'] = df_prices['TIPS'].fillna(0)
-    return df_prices
-
-
-df_prices = total(df_prices)
