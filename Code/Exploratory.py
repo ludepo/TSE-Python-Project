@@ -8,9 +8,9 @@ import numpy as np
 ## *********************************************************************************************************************
 
 # define input and output path
-importpath = os.path.abspath("./Data/Coffeebar_2016-2020.csv")
-exportpath_probs = os.path.abspath("./Results/dfprobs.csv")
-exportpath_data = os.path.abspath("./Results/coffeebar_prices.csv")
+importpath = os.path.abspath("../Data/Coffeebar_2016-2020.csv")
+exportpath_probs = os.path.abspath("../Results/dfprobs.csv")
+exportpath_data = os.path.abspath("../Results/coffeebar_prices.csv")
 
 # load dataframe
 df = pd.read_csv(importpath, sep=";")
@@ -63,7 +63,7 @@ plt.bar(df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', asc
         df.groupby(by="FOOD", as_index=False).count().sort_values(by='TIME', ascending=False).TIME)
 plt.xticks(rotation=45)
 plt.ylabel('Number of items sold')
-plt.savefig('./Results/FoodDrinksSold_Bar.png')
+plt.savefig('../Results/FoodDrinksSold_Bar.png')
 plt.show()
 
 # -- Graph for food and drinks depending on the week day
@@ -73,13 +73,13 @@ df['WEEKDAY'] = pd.Categorical(df['WEEKDAY'],
 df.groupby(['WEEKDAY', 'DRINKS']).count()['YEAR'].unstack().plot.bar(figsize=(12,7))
 plt.title('Drinks bought by day of the week')
 plt.xticks(rotation=45)
-plt.savefig('./Results/DrinksDay_Bar.png')
+plt.savefig('../Results/DrinksDay_Bar.png')
 plt.show()
 
 df.groupby(['WEEKDAY', 'FOOD']).count()['YEAR'].unstack().plot.bar(figsize=(12,7))
 plt.title('Food bought by day of the week')
 plt.xticks(rotation=45)
-plt.savefig('./Results/FoodDay_Bar.png')
+plt.savefig('../Results/FoodDay_Bar.png')
 plt.show()
 
 ## *********************************************************************************************************************
@@ -118,14 +118,14 @@ dfpropdrink.plot.area(figsize=(10,6))
 plt.legend(bbox_to_anchor=(0.77, 0.85), loc="center left", borderaxespad=0)
 plt.title('Probabilities of buying different drinks over the day')
 plt.ylabel('Probability in %')
-plt.savefig('./Results/DrinksProb_initial.png')
+plt.savefig('../Results/DrinksProb_initial.png')
 plt.show()
 
 dfpropfood.plot.area(figsize=(10,6))
 plt.legend(bbox_to_anchor=(0.77, 0.85), loc="center left", borderaxespad=0)
 plt.title('Probabilities of buying different food over the day')
 plt.ylabel('Probability in %')
-plt.savefig('./Results/FoodProb_initial.png')
+plt.savefig('../Results/FoodProb_initial.png')
 plt.show()
 
 ## *********************************************************************************************************************
@@ -160,11 +160,10 @@ df_prices = prices(df)
 def tips(dataframe):  # function that takes a subsample of 10% of onetimers and assign them a tip
     dataframe = dataframe.drop_duplicates(subset=['CUSTOMER'], keep=False)
     dataframe = dataframe.sample(frac=.1)
-    dataframe['TIPS'] = (np.random.randint(0, 11, size=len(dataframe)))
+    dataframe['TIPS'] = random.choice(range(100, 1001)) / 100
     dataframe = dataframe[['CUSTOMER', 'TIPS']]
     dataframe['TIPS'] = dataframe['TIPS'].astype(int)
     return dataframe
-
 
 df_tips = tips(df)
 
