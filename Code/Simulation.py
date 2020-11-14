@@ -72,7 +72,7 @@ if answer == "run":
 elif answer == "load":
     # simulate four month to see that program works fine
     ReturningCustFourMonth = ReturningCust.copy() # copy list of returning customers just to show changes
-    transactionsFourMonths = SimulateRange(dfprob, ReturningCustFourMonth, items, start="2016-11-01", end="2018-02-10")
+    transactionsFourMonths = SimulateRange(dfprob, ReturningCustFourMonth, items, start="2017-11-01", end="2018-02-10")
     # transform created data to show objects along with their attributes
     transactionsFourMonths = NoObjects(transactionsFourMonths)
     # save simulated data as pickle in order to access objects later again
@@ -99,13 +99,13 @@ transactions['PURCHASE'][100].describe_purchase()
 transactions['PURCHASE'][1500].describe_purchase()
 
 # How much money was spent by returning customers?
-moneyspent = [ReturningCustFourMonth[i].money_spent for i in range(len(ReturningCustFourMonth))]
+moneyspent = [ReturningCust[i].money_spent for i in range(len(ReturningCust))]
 print("The average amount spent by a returning customer was %s" %(sum(moneyspent)/len(moneyspent)))
 
 # How much budget do returning customers have left?
-budgets = [ReturningCustFourMonth[i].budget for i in range(len(ReturningCustFourMonth))]
+budgets = [ReturningCust[i].budget for i in range(len(ReturningCust))]
 print("The average budget left for a normal returning customer was %s€ and for a hipster %s€"
-      %(round(sum(budgets[:65])/len(budgets[:65])), round(sum(budgets[65:])/len(budgets[65:]))))
+      %(round(sum(budgets[:666])/len(budgets[:666])), round(sum(budgets[666:])/len(budgets[666:]))))
 
 # -- average income during day
 trans_mean_day = transactions.groupby(by='TIME').mean().reset_index()
