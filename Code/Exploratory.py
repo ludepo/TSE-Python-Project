@@ -165,7 +165,6 @@ def tips(dataframe):  # function that takes a subsample of 10% of onetimers and 
     dataframe['TIPS'] = dataframe['TIPS'].astype(int)
     return dataframe
 
-
 df_tips = tips(df)
 
 
