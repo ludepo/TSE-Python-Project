@@ -1,6 +1,6 @@
 # EXAM PROJECT PYTHON
 
-This project was realized as part of the Python class for EEE Master.  
+This project was realized in November 2020 as part of the Python class for EEE Master.  
 
 ## 1. Project description
 
