@@ -1,19 +1,19 @@
 # EXAM PROJECT PYTHON
 
-This project was realized in November 2020 as part of the Python class for EEE Master.  
+This project was realized in November 2020 as part of the Python class for the EEE Master.  
 
 ## 1. Project description
 
 This project consists in modelling a coffee bar that sells drinks and food, for different
-types of customers. Based on information obtained from a given dataframe, the aim is to simulate 
+types of customers. Based on information obtained from given data, the aim is to simulate 
 the purchases made in a coffee-shop by different type of customers that have different behaviors.
 
 ## 2. Prerequisites
-To run this project, you will need to install Python. Before running any piece of code, please make sure that 
-you imported the packaged specified at the top of each file. 
+To run this project, you will need to install Python. Before running any piece of code, please make sure that
+the libraries indicated at the top of each file are installed. 
 
-**Please note that decisions must be taken while running the code. As running the full simulation uses 
-approximatly 8BG of ram, which can be long, you will have the choice to either simulate the whole dataframe or to 
+**Please note that decisions must be taken while running the code. As running the full simulation takes 
+approximatly one hour (with 8BG RAM), you will have the choice to either conduct the entire simulation or to 
 load data that is already stored and simulate a shorter simulation. You will be indicated when needing to take 
 decisions.**
 
@@ -36,17 +36,17 @@ That dataset will be used in the first part of the project in order to explore t
 consumption habits. 
 
 In this folder, we also make available 5 years span simulations obtained with our code. 
-As the 5 years simulation takes about 40 minutes to run, this allows to do the later analysis 
+As the 5 years simulation takes about 60 minutes to run, this allows to do the later analysis 
 without having to run the whole simulation. Those are actual simulations obtained from our code.
-The general 5 year simulation is called "TransactionsDF.dat". The other databases correspond to 
-different hypothesis that are made. 
+The general 5 year simulation is called "TransactionsDF.dat" (or Simulation.csv). The other pickle/ .csv files correspond
+to the variation in input parameters. 
 
 ### 3.3. Code
 The Code folder contains the four python files used to solve the project. Each file corresponds to a different part of 
 the assignment. 
 
 #### *Exploratory*
-"Exploratory.py" file responds to the first part of the assignment. With this code, we  explore the 
+The "Exploratory.py" file responds to the first part of the assignment. With this code, we  explore the 
 "Coffeebar_2016-2020.csv" dataset in order to determine what the shop is selling and to obtain probabilities of
 customers buying each items at each time of the day. This code allows to obtain and export a csv dataset, "dfprobs.csv" 
 with cross probabilities between time of the day and order of different items.
@@ -55,25 +55,28 @@ comparisons.
 
 #### *Customers*
 ##### *Objects*
-In a first part, this file creates the different classes of objects that are needed in the simulation. 
+In a first part, this file defines the different classes of objects that are needed in the simulation. 
 It first creates the different types of customers with given attributes and instance methods that will be used in
-the simulation. It also creates the Purchase object that assign a purchase to customers depending on the time they show
-up. Finally it creates the  class Items for food and drinks.
+the simulation. It also creates the Purchase object that assigns a purchase to customers depending on the time they show
+up. Finally, it creates the class Items for food and drinks.
 
 ##### *Functions*
 In a second part, we specify the functions needed for the simulation. 
 
-The ChooseCustomer() function will allow to choose between the different type of customers, taking into account their 
-solvability.
+The ChooseCustomer() function will conduct the customer lottery given as input the list of returning customers
+and outputs a chosen customer.
 
-The MakePurchase() function assigns a purchase to the chosen customer, depending on the time of the day and on the 
-probabilities obtained in the first part.
+The MakePurchase() function takes as inputs the chosen customer object, the time slot (hour, minute), the choice probabilities,
+as well as the list of item objects sold at the Cafe. It outputs a purchase object with attributes like 'food', 'drink', 
+'value', 'tip', etc..
 
 The SimulateRange() function will allow to obtain the final simulation by combining the chosen customer with its given 
-purchase depending on the time of the day. It is created to simulate a 5 years span but a different time range can be 
-specified in the input. 
+purchase depending on the time of the day. It takes as input the choice probabilities, the list of returning customer 
+objects, the list of item objects and optionally a start and end date (default five years).
 
-Finally, the NoObjects() function allows to convert the object stored in the dataframe to human readable data.
+Finally, the NoObjects() function takes as input the created dataframe with the customer object and the purchase object
+assigned to each time slot and outputs the same dataframe with additional columns descriibing some attributes of the
+respective objetcs.
 
 #### *Simulation*
 Finally, the "Simulation.py" allows to obtain a 5 years span of customer based on the class and functions created 
@@ -100,6 +103,6 @@ The Results folder contains the datasets created for the project and the differe
 
 
 ## Authors
-**Luca POLL**, lupoll208@gmail.com, git account: Lupoll
-
 **Camille CALANDRE**, calandre.camille@hotmail.fr, git account: CamilleCalandre
+
+**Luca POLL**, lupoll208@gmail.com, git account: Lupoll
