@@ -160,10 +160,11 @@ df_prices = prices(df)
 def tips(dataframe):  # function that takes a subsample of 10% of onetimers and assign them a tip
     dataframe = dataframe.drop_duplicates(subset=['CUSTOMER'], keep=False)
     dataframe = dataframe.sample(frac=.1)
-    dataframe['TIPS'] = random.choice(range(100, 1001)) / 100
+    dataframe['TIPS'] = (np.random.randint(1, 11, size=len(dataframe)))
     dataframe = dataframe[['CUSTOMER', 'TIPS']]
     dataframe['TIPS'] = dataframe['TIPS'].astype(int)
     return dataframe
+
 
 df_tips = tips(df)
 

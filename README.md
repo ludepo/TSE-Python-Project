@@ -1,6 +1,6 @@
 # EXAM PROJECT PYTHON
 
-This project was realized as part of the Python class for EEE Master.  
+This project was realized as part of the Python class for the EEE Master.  
 
 ## Project description
 

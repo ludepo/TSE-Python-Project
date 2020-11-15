@@ -18,7 +18,7 @@ PIKreturn = "../Data/ReturningCust.dat"
 PIKdata4month = "../Data/data4month.dat"
 PIKreturn4month = "../Data/Cust4month.dat"
 
-# create items that are sold in cafe: item(name, price, type)
+# create list of item objects that are sold in cafe: item(name, price, type)
 items = [item("coffee", 3, "drink"),
          item("frappucino", 4, "drink"),
          item("milkshake", 5, "drink"),
@@ -31,7 +31,7 @@ items = [item("coffee", 3, "drink"),
          item("sandwich", 2, "food"),
          item("nothing", 0, "food")]
 
-# load dataframe with probabilities obtained from Exploratory.py
+# load dataframe with choice probabilities obtained from Exploratory.py
 dfprob = pd.read_csv(import_dfprob, sep=";")
 dfprob.index = dfprob['ID']
 dfprob['HOUR'] = dfprob.ID.str.slice(stop=2)
@@ -130,7 +130,7 @@ def sumtype(dataframe):
 
 trans_sum_type = sumtype(transactions)
 
-plt.figure(figsize=(12, 7))
+plt.figure(figsize=(12, 4.5))
 plt.stackplot(trans_sum_type.index, trans_sum_type['tripadvisor_one_time'], trans_sum_type['normal_one_time'],
               trans_sum_type['hipster_returning'], trans_sum_type['normal_returning'],
               labels=['Tripadvised', 'Normal one-time', 'Hipster', 'Normal returning'])
