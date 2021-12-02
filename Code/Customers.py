@@ -20,7 +20,7 @@ class Customer(object):
         self.tip = 0
 
     # method for telling what drinks have been bought in the past
-    def drinks_bought(self):
+    def drinks_bought(self): 
         beverages = []
         for i in range(len(self.purchases)):
             beverages.append(self.purchases[i].drink.name)
