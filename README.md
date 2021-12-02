@@ -12,6 +12,8 @@ the purchases made in a coffee-shop by different type of customers that have dif
 To run this project, you will need to install Python. Before running any piece of code, please make sure that
 the libraries indicated at the top of each file are installed. 
 
+Comment: **"progressbar2"** has to be installed, not library "progressbar".
+
 **Please note that decisions must be taken while running the code. As running the full simulation takes 
 approximatly one hour (with 8BG RAM), you will have the choice to either conduct the entire simulation or to 
 load data that is already stored and simulate a shorter simulation. You will be indicated when needing to take 
